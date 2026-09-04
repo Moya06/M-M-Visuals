@@ -48,13 +48,38 @@ export function Footer() {
           </div>
           <div>
             <h3 className="text-xs tracking-[2px] uppercase text-[var(--text-main)] font-semibold mb-4">Síguenos</h3>
-            <div className="flex gap-3">
-              {['instagram', 'facebook-f', 'tiktok'].map((icon) => (
-                <a key={icon} href="#" className="w-10 h-10 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] flex items-center justify-center no-underline text-base transition-all duration-300 hover:bg-[var(--accent)] hover:text-white hover:-translate-y-1 shadow-sm" aria-label={icon}>
-                  <i className={`fab fa-${icon}`} />
-                </a>
-              ))}
+            <div className="flex gap-3 items-center">
+              <a
+                href="https://www.instagram.com/mym.visuals/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] flex items-center justify-center no-underline text-base transition-all duration-300 hover:bg-[var(--accent)] hover:text-white hover:-translate-y-1 shadow-sm"
+                aria-label="Instagram @mym.visuals"
+                title="Instagram: @mym.visuals"
+              >
+                <i className="fab fa-instagram" />
+              </a>
+              <a
+                href="https://www.facebook.com/mym.visuals"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] flex items-center justify-center no-underline text-base transition-all duration-300 hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] hover:-translate-y-1 shadow-sm"
+                aria-label="Facebook Mym Visuals"
+                title="Facebook: Mym Visuals"
+              >
+                <i className="fab fa-facebook-f" />
+              </a>
+              <span
+                className="w-10 h-10 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)]/40 flex items-center justify-center text-base cursor-not-allowed shadow-sm"
+                aria-label="TikTok (Próximamente)"
+                title="TikTok: Próximamente"
+              >
+                <i className="fab fa-tiktok" />
+              </span>
             </div>
+            <p className="text-[12px] text-[var(--text-muted)] mt-3 tracking-wide">
+              @mym.visuals
+            </p>
           </div>
         </div>
         <div className="text-center pt-[25px] border-t border-[var(--border-color)] text-[var(--text-muted)] text-[12px] tracking-[1px]">

@@ -24,8 +24,26 @@ export function About() {
             <p className="text-[var(--text-muted)] mb-5 text-[15px] leading-relaxed">
               Cada sesión es una colaboración única: trabajamos la luz, los tonos y el ritmo natural para entregar piezas visuales con identidad propia y atemporal.
             </p>
-            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[var(--accent)] text-[var(--accent)] text-xs tracking-[1px] uppercase mt-2 font-semibold">
-              <i className="fas fa-camera" /> M&M Visuals · Sesiones Disponibles
+            <div className="flex flex-wrap items-center gap-3 mt-5">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--accent)]/50 text-[var(--accent)] text-xs tracking-[1px] uppercase font-semibold">
+                <i className="fas fa-camera" /> Costa Rica · Sesiones Disponibles
+              </div>
+              <a
+                href="https://www.instagram.com/mym.visuals/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-main)] text-xs tracking-[0.5px] font-semibold no-underline transition-all duration-300 hover:border-[var(--accent)] hover:text-[var(--accent)] hover:-translate-y-0.5 shadow-sm"
+              >
+                <i className="fab fa-instagram text-sm text-[var(--accent)]" /> @mym.visuals
+              </a>
+              <a
+                href="https://www.facebook.com/mym.visuals"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-main)] text-xs tracking-[0.5px] font-semibold no-underline transition-all duration-300 hover:border-[#1877F2] hover:text-[#1877F2] hover:-translate-y-0.5 shadow-sm"
+              >
+                <i className="fab fa-facebook-f text-sm text-[#1877F2]" /> Facebook
+              </a>
             </div>
           </div>
         </div>
