@@ -28,7 +28,7 @@ export function About() {
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--accent)]/50 text-[var(--accent)] text-xs tracking-[1px] uppercase font-semibold">
                 <i className="fas fa-camera" /> Costa Rica · Sesiones Disponibles
               </div>
-              </a>
+        
             </div>
           </div>
         </div>
