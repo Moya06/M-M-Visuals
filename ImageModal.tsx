@@ -301,8 +301,8 @@ export function ImageModal({
       {/* Fondo cinematográfico adaptativo con desenfoque de cristal */}
       <div
         className={`absolute inset-0 transition-all duration-300 ${isLight
-            ? 'bg-[#f7f4ed]/97 backdrop-blur-2xl'
-            : 'bg-[#070707]/94 backdrop-blur-2xl'
+          ? 'bg-[#f7f4ed]/97 backdrop-blur-2xl'
+          : 'bg-[#070707]/94 backdrop-blur-2xl'
           }`}
         onClick={() => {
           if (scale > 1) onResetZoom()
@@ -312,24 +312,24 @@ export function ImageModal({
 
       {/* ── BARRA SUPERIOR (HEADER ESTUDIO) ── */}
       <header
-        className={`relative z-20 w-full px-5 py-3.5 flex items-center justify-between gap-4 transition-all duration-300 ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
+        className={`relative z-20 w-full px-3 md:px-5 py-3 md:py-3.5 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 transition-all duration-300 ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
           }`}
       >
         {/* Lado izquierdo: Título, categoría y contador */}
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className={`font-serif text-base sm:text-lg font-semibold truncate ${isLight ? 'text-[#25201b]' : 'text-white drop-shadow-sm'
+        <div className="flex items-center gap-3.5 min-w-0 justify-center md:justify-start w-full md:w-auto">
+          <div className="flex flex-col min-w-0 items-center md:items-start text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
+              <h3 className={`font-serif text-sm md:text-lg font-semibold truncate ${isLight ? 'text-[#25201b]' : 'text-white drop-shadow-sm'
                 }`}>
                 {displayTitle}
               </h3>
               {displayCategory && (
-                <span className="shrink-0 px-2.5 py-0.5 rounded-full bg-[var(--accent)]/15 border border-[var(--accent)]/30 text-[var(--accent)] text-[10px] font-semibold tracking-[1px] uppercase">
+                <span className="shrink-0 px-2 py-0.5 rounded-full bg-[var(--accent)]/15 border border-[var(--accent)]/30 text-[var(--accent)] text-[9px] md:text-[10px] font-semibold tracking-[1px] uppercase">
                   {displayCategory}
                 </span>
               )}
             </div>
-            <span className={`text-[11px] tracking-[2px] uppercase mt-0.5 ${isLight ? 'text-[#746b62]' : 'text-white/50'
+            <span className={`text-[9px] md:text-[11px] tracking-[1.5px] md:tracking-[2px] uppercase mt-1 md:mt-0.5 ${isLight ? 'text-[#746b62]' : 'text-white/50'
               }`}>
               M&M Visuals · {currentIndex + 1} de {total}
             </span>
@@ -337,9 +337,9 @@ export function ImageModal({
         </div>
 
         {/* Lado derecho: Barra de herramientas en píldora de cristal */}
-        <div className={`flex items-center gap-1 sm:gap-1.5 p-1.5 rounded-full backdrop-blur-xl transition-colors ${isLight
-            ? 'bg-black/[0.05] border border-black/10 shadow-[0_8px_25px_rgba(0,0,0,0.06)]'
-            : 'bg-white/[0.08] border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)]'
+        <div className={`flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full backdrop-blur-xl transition-colors ${isLight
+          ? 'bg-black/[0.05] border border-black/10 shadow-[0_8px_25px_rgba(0,0,0,0.06)]'
+          : 'bg-white/[0.08] border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)]'
           }`}>
           {/* Zoom Out */}
           <button
@@ -348,8 +348,8 @@ export function ImageModal({
             aria-label="Reducir zoom"
             title="Reducir (-) [Zoom]"
             className={`w-9 h-9 rounded-full flex items-center justify-center transition-all disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer ${isLight
-                ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
-                : 'text-white/80 hover:text-white hover:bg-white/15'
+              ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
+              : 'text-white/80 hover:text-white hover:bg-white/15'
               }`}
           >
             <i className="fas fa-search-minus text-xs" />
@@ -361,8 +361,8 @@ export function ImageModal({
             aria-label="Restablecer zoom"
             title="Doble clic o clic aquí para restablecer"
             className={`px-2.5 h-7 rounded-full text-[11px] font-semibold tracking-wider flex items-center justify-center hover:bg-[var(--accent)] hover:text-black transition-all cursor-pointer ${isLight
-                ? 'bg-black/10 text-[#25201b]'
-                : 'bg-white/10 text-white'
+              ? 'bg-black/10 text-[#25201b]'
+              : 'bg-white/10 text-white'
               }`}
           >
             {zoomPercentage}%
@@ -375,8 +375,8 @@ export function ImageModal({
             aria-label="Aumentar zoom"
             title="Aumentar (+) [Zoom]"
             className={`w-9 h-9 rounded-full flex items-center justify-center transition-all disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer ${isLight
-                ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
-                : 'text-white/80 hover:text-white hover:bg-white/15'
+              ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
+              : 'text-white/80 hover:text-white hover:bg-white/15'
               }`}
           >
             <i className="fas fa-search-plus text-xs" />
@@ -390,10 +390,10 @@ export function ImageModal({
             aria-label="Mostrar/ocultar miniaturas"
             title="Miniaturas (T)"
             className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${showThumbnails
-                ? 'bg-[var(--accent)]/25 text-[var(--accent)]'
-                : isLight
-                  ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
-                  : 'text-white/80 hover:text-white hover:bg-white/15'
+              ? 'bg-[var(--accent)]/25 text-[var(--accent)]'
+              : isLight
+                ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
+                : 'text-white/80 hover:text-white hover:bg-white/15'
               }`}
           >
             <i className="fas fa-table-cells text-xs" />
@@ -406,10 +406,10 @@ export function ImageModal({
               aria-label="Ver detalles"
               title="Información de la obra (I)"
               className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${showInfo
-                  ? 'bg-[var(--accent)]/25 text-[var(--accent)]'
-                  : isLight
-                    ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
-                    : 'text-white/80 hover:text-white hover:bg-white/15'
+                ? 'bg-[var(--accent)]/25 text-[var(--accent)]'
+                : isLight
+                  ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
+                  : 'text-white/80 hover:text-white hover:bg-white/15'
                 }`}
             >
               <i className="fas fa-circle-info text-xs" />
@@ -422,8 +422,8 @@ export function ImageModal({
             aria-label="Pantalla completa"
             title="Pantalla completa (F)"
             className={`w-9 h-9 rounded-full hidden sm:flex items-center justify-center transition-all cursor-pointer ${isLight
-                ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
-                : 'text-white/80 hover:text-white hover:bg-white/15'
+              ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
+              : 'text-white/80 hover:text-white hover:bg-white/15'
               }`}
           >
             <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'} text-xs`} />
@@ -439,8 +439,8 @@ export function ImageModal({
                   aria-label="Descargar foto"
                   title="Descargar foto (Auto: ~2 MB en cel / Original en PC) · Atajo: D"
                   className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer disabled:opacity-50 ${isLight
-                      ? 'bg-emerald-500/15 hover:bg-emerald-500 text-emerald-700 hover:text-white'
-                      : 'bg-emerald-500/25 hover:bg-emerald-500 text-emerald-300 hover:text-white'
+                    ? 'bg-emerald-500/15 hover:bg-emerald-500 text-emerald-700 hover:text-white'
+                    : 'bg-emerald-500/25 hover:bg-emerald-500 text-emerald-300 hover:text-white'
                     }`}
                 >
                   {downloading ? (
@@ -465,8 +465,8 @@ export function ImageModal({
               {showDownloadMenu && (
                 <div
                   className={`absolute right-0 mt-2 w-64 rounded-2xl p-2 z-50 backdrop-blur-2xl shadow-2xl border animate-[fadeUp_0.15s_ease-out] ${isLight
-                      ? 'bg-white/95 border-[var(--border-color)] text-[#25201b]'
-                      : 'bg-[#141414]/95 border-white/15 text-white'
+                    ? 'bg-white/95 border-[var(--border-color)] text-[#25201b]'
+                    : 'bg-[#141414]/95 border-white/15 text-white'
                     }`}
                 >
                   <div className="px-3 py-1.5 border-b border-black/5 dark:border-white/10 mb-1">
@@ -513,8 +513,8 @@ export function ImageModal({
             aria-label="Cerrar visor"
             title="Cerrar (Esc)"
             className={`w-11 h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${isLight
-                ? 'bg-red-500/15 hover:bg-red-500 text-red-600 hover:text-white'
-                : 'bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-white'
+              ? 'bg-red-500/15 hover:bg-red-500 text-red-600 hover:text-white'
+              : 'bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-white'
               }`}
           >
             <i className="fas fa-times text-base sm:text-sm" />
@@ -554,8 +554,8 @@ export function ImageModal({
           aria-label="Foto anterior"
           title="Anterior (←)"
           className={`fixed left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer ${isLight
-              ? 'bg-black/[0.06] hover:bg-black/15 text-[#25201b] border border-black/10 shadow-[0_10px_30px_rgba(0,0,0,0.08)]'
-              : 'bg-white/[0.08] hover:bg-white/20 text-white border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
+            ? 'bg-black/[0.06] hover:bg-black/15 text-[#25201b] border border-black/10 shadow-[0_10px_30px_rgba(0,0,0,0.08)]'
+            : 'bg-white/[0.08] hover:bg-white/20 text-white border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
             } ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         >
           <i className="fas fa-chevron-left text-base" />
@@ -570,8 +570,8 @@ export function ImageModal({
           aria-label="Foto siguiente"
           title="Siguiente (→)"
           className={`fixed right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer ${isLight
-              ? 'bg-black/[0.06] hover:bg-black/15 text-[#25201b] border border-black/10 shadow-[0_10px_30px_rgba(0,0,0,0.08)]'
-              : 'bg-white/[0.08] hover:bg-white/20 text-white border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
+            ? 'bg-black/[0.06] hover:bg-black/15 text-[#25201b] border border-black/10 shadow-[0_10px_30px_rgba(0,0,0,0.08)]'
+            : 'bg-white/[0.08] hover:bg-white/20 text-white border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
             } ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         >
           <i className="fas fa-chevron-right text-base" />
@@ -609,8 +609,8 @@ export function ImageModal({
             <div
               onClick={(e) => e.stopPropagation()}
               className={`absolute bottom-6 right-6 max-w-sm z-30 p-5 rounded-2xl backdrop-blur-2xl shadow-2xl animate-[fadeUp_0.2s_ease-out] ${isLight
-                  ? 'bg-white/95 border border-[var(--border-color)] text-[#25201b]'
-                  : 'bg-black/85 border border-white/15 text-white'
+                ? 'bg-white/95 border border-[var(--border-color)] text-[#25201b]'
+                : 'bg-black/85 border border-white/15 text-white'
                 }`}
             >
               <div className="flex items-center justify-between mb-2">
@@ -649,8 +649,8 @@ export function ImageModal({
             }`}
         >
           <div className={`max-w-4xl mx-auto p-2 rounded-2xl backdrop-blur-2xl transition-colors ${isLight
-              ? 'bg-black/[0.05] border border-black/10 shadow-[0_10px_35px_rgba(0,0,0,0.08)]'
-              : 'bg-white/[0.06] border border-white/10 shadow-[0_10px_35px_rgba(0,0,0,0.6)]'
+            ? 'bg-black/[0.05] border border-black/10 shadow-[0_10px_35px_rgba(0,0,0,0.08)]'
+            : 'bg-white/[0.06] border border-white/10 shadow-[0_10px_35px_rgba(0,0,0,0.6)]'
             }`}>
             <div
               ref={filmstripRef}
@@ -665,10 +665,10 @@ export function ImageModal({
                     onClick={() => onGoTo(idx)}
                     aria-label={`Ver foto ${idx + 1}`}
                     className={`relative shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden transition-all duration-200 cursor-pointer p-0 border-2 ${isActive
-                        ? 'border-[var(--accent)] scale-105 shadow-[0_0_15px_rgba(201,168,76,0.6)] ring-2 ring-[var(--accent)]/30'
-                        : isLight
-                          ? 'border-transparent opacity-60 hover:opacity-100 hover:scale-100'
-                          : 'border-transparent opacity-50 hover:opacity-100 hover:scale-100'
+                      ? 'border-[var(--accent)] scale-105 shadow-[0_0_15px_rgba(201,168,76,0.6)] ring-2 ring-[var(--accent)]/30'
+                      : isLight
+                        ? 'border-transparent opacity-60 hover:opacity-100 hover:scale-100'
+                        : 'border-transparent opacity-50 hover:opacity-100 hover:scale-100'
                       }`}
                   >
                     <img
