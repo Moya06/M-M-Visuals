@@ -9,6 +9,10 @@ export function CategoriesPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [editParentId, setEditParentId] = useState<string | null>(null)
+
+  const [addingSubToId, setAddingSubToId] = useState<string | null>(null)
+  const [subName, setSubName] = useState('')
+
   const [submitting, setSubmitting] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'ok' | 'err'; msg: string } | null>(null)
 
@@ -63,6 +67,19 @@ export function CategoriesPage() {
     setSubmitting(false)
   }
 
+  const handleCreateSub = async (parentId: string) => {
+    if (!subName.trim()) return
+    setSubmitting(true)
+    const { error } = await createCategory(subName.trim(), parentId)
+    if (error) showFeedback('err', `Error al crear subcategoría: ${(error as { message?: string })?.message ?? 'desconocido'}`)
+    else {
+      showFeedback('ok', 'Subcategoría agregada')
+      setAddingSubToId(null)
+      setSubName('')
+    }
+    setSubmitting(false)
+  }
+
   const handleDelete = async (cat: Category) => {
     if (!confirm(`¿Eliminar la categoría "${cat.name}"? Las fotos asociadas perderán su categoría.`)) return
     const { error } = await deleteCategory(cat.id)
@@ -80,8 +97,8 @@ export function CategoriesPage() {
       {/* Feedback */}
       {feedback && (
         <div className={`mb-5 px-4 py-3 rounded-xl text-sm border ${feedback.type === 'ok'
-            ? 'bg-green-500/10 border-green-500/30 text-green-500 font-medium'
-            : 'bg-red-500/10 border-red-500/30 text-red-500 font-medium'
+          ? 'bg-green-500/10 border-green-500/30 text-green-500 font-medium'
+          : 'bg-red-500/10 border-red-500/30 text-red-500 font-medium'
           }`}>
           {feedback.msg}
         </div>
@@ -162,16 +179,40 @@ export function CategoriesPage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-3 w-full">
-                  {cat.parent_id && <i className="fas fa-level-up-alt rotate-90 text-[var(--text-muted)]/50 mr-1" />}
-                  <div className="flex-1">
-                    <span className="text-sm text-[var(--text-main)] font-medium">{cat.name}</span>
-                    <span className="ml-2 text-[10px] text-[var(--text-muted)] font-mono opacity-60">
-                      {cat.slug}
-                    </span>
+                <div className="flex flex-col w-full gap-2">
+                  <div className="flex items-center gap-3 w-full">
+                    {cat.parent_id && <i className="fas fa-level-up-alt rotate-90 text-[var(--text-muted)]/50 mr-1" />}
+                    <div className="flex-1">
+                      <span className="text-sm text-[var(--text-main)] font-medium">{cat.name}</span>
+                      <span className="ml-2 text-[10px] text-[var(--text-muted)] font-mono opacity-60">
+                        {cat.slug}
+                      </span>
+                    </div>
+                    {!cat.parent_id && (
+                      <button onClick={() => { setAddingSubToId(cat.id); setSubName(''); }} className="text-[var(--text-muted)] hover:text-green-500 transition-colors p-1.5 cursor-pointer" title="Agregar subcategoría">
+                        <i className="fas fa-folder-plus text-xs" />
+                      </button>
+                    )}
+                    <button onClick={() => startEdit(cat)} className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors p-1.5 cursor-pointer" title="Editar"><i className="fas fa-pen text-xs" /></button>
+                    <button onClick={() => handleDelete(cat)} className="text-[var(--text-muted)] hover:text-red-500 transition-colors p-1.5 cursor-pointer" title="Eliminar"><i className="fas fa-trash text-xs" /></button>
                   </div>
-                  <button onClick={() => startEdit(cat)} className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors p-1.5 cursor-pointer" title="Editar"><i className="fas fa-pen text-xs" /></button>
-                  <button onClick={() => handleDelete(cat)} className="text-[var(--text-muted)] hover:text-red-500 transition-colors p-1.5 cursor-pointer" title="Eliminar"><i className="fas fa-trash text-xs" /></button>
+
+                  {addingSubToId === cat.id && (
+                    <div className="flex items-center gap-2 mt-2 ml-4">
+                      <i className="fas fa-level-up-alt rotate-90 text-[var(--text-muted)]/50" />
+                      <input
+                        autoFocus
+                        type="text"
+                        value={subName}
+                        onChange={(e) => setSubName(e.target.value)}
+                        placeholder="Nombre de subcategoría..."
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleCreateSub(cat.id); if (e.key === 'Escape') setAddingSubToId(null) }}
+                        className="flex-1 bg-[var(--bg-primary)] border border-[var(--accent)] rounded-lg px-3 py-1.5 text-sm text-[var(--text-main)] focus:outline-none"
+                      />
+                      <button onClick={() => handleCreateSub(cat.id)} disabled={submitting} className="text-xs px-3 py-1.5 bg-[var(--accent)] text-white rounded-lg font-semibold hover:bg-[var(--accent-hover)]">Crear</button>
+                      <button onClick={() => setAddingSubToId(null)} className="text-xs px-3 py-1.5 bg-transparent border border-[var(--border-color)] text-[var(--text-muted)] rounded-lg hover:text-[var(--text-main)]">Cancelar</button>
+                    </div>
+                  )}
                 </div>
               )}
             </li>
