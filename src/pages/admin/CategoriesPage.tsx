@@ -5,10 +5,26 @@ import type { Category } from '../../types'
 export function CategoriesPage() {
   const { categories, loading, createCategory, updateCategory, deleteCategory } = useCategories()
   const [newName, setNewName] = useState('')
+  const [newParentId, setNewParentId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
+  const [editParentId, setEditParentId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'ok' | 'err'; msg: string } | null>(null)
+
+  // Computados
+  const parentCategories = categories.filter((c) => !c.parent_id)
+
+  const getSortedCategories = () => {
+    const parents = categories.filter(c => !c.parent_id)
+    const sorted: Category[] = []
+    parents.forEach(p => {
+      sorted.push(p)
+      const children = categories.filter(c => c.parent_id === p.id)
+      sorted.push(...children)
+    })
+    return sorted
+  }
 
   const showFeedback = (type: 'ok' | 'err', msg: string) => {
     setFeedback({ type, msg })
@@ -22,21 +38,26 @@ export function CategoriesPage() {
       return
     }
     setSubmitting(true)
-    const { error } = await createCategory(newName.trim())
+    const { error } = await createCategory(newName.trim(), newParentId)
     if (error) showFeedback('err', `Error al crear: ${(error as { message?: string })?.message ?? 'desconocido'}`)
-    else { showFeedback('ok', '¡Categoría creada con éxito!'); setNewName('') }
+    else {
+      showFeedback('ok', '¡Categoría creada con éxito!')
+      setNewName('')
+      setNewParentId(null)
+    }
     setSubmitting(false)
   }
 
   const startEdit = (cat: Category) => {
     setEditingId(cat.id)
     setEditName(cat.name)
+    setEditParentId(cat.parent_id || null)
   }
 
   const handleUpdate = async (id: string) => {
     if (!editName.trim()) return
     setSubmitting(true)
-    const { error } = await updateCategory(id, editName.trim())
+    const { error } = await updateCategory(id, editName.trim(), editParentId)
     if (error) showFeedback('err', `Error al actualizar: ${(error as { message?: string })?.message ?? 'desconocido'}`)
     else { showFeedback('ok', 'Categoría actualizada'); setEditingId(null) }
     setSubmitting(false)
@@ -58,28 +79,39 @@ export function CategoriesPage() {
 
       {/* Feedback */}
       {feedback && (
-        <div className={`mb-5 px-4 py-3 rounded-xl text-sm border ${
-          feedback.type === 'ok'
+        <div className={`mb-5 px-4 py-3 rounded-xl text-sm border ${feedback.type === 'ok'
             ? 'bg-green-500/10 border-green-500/30 text-green-500 font-medium'
             : 'bg-red-500/10 border-red-500/30 text-red-500 font-medium'
-        }`}>
+          }`}>
           {feedback.msg}
         </div>
       )}
 
       {/* Formulario crear */}
-      <form onSubmit={handleCreate} className="flex gap-3 mb-8">
-        <input
-          type="text"
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          placeholder="Escribe el nombre aquí (ej. Bodas, Callejera...)"
-          className="flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50 focus:outline-none focus:border-[var(--accent)] transition-colors shadow-sm"
-        />
+      <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-3 mb-8 bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-color)]">
+        <div className="flex-1 flex flex-col sm:flex-row gap-3">
+          <input
+            type="text"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="Nombre (ej. Sesión Casual)"
+            className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50 focus:outline-none focus:border-[var(--accent)] transition-colors"
+          />
+          <select
+            value={newParentId || ''}
+            onChange={(e) => setNewParentId(e.target.value || null)}
+            className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--accent)]"
+          >
+            <option value="">Principal (Sin padre)</option>
+            {parentCategories.map(p => (
+              <option key={p.id} value={p.id}>Sub de: {p.name}</option>
+            ))}
+          </select>
+        </div>
         <button
           type="submit"
           disabled={submitting}
-          className="px-6 py-3 bg-[var(--accent)] text-white rounded-xl text-sm font-semibold hover:bg-[var(--accent-hover)] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2"
+          className="px-6 py-2.5 bg-[var(--accent)] text-white rounded-xl text-sm font-semibold hover:bg-[var(--accent-hover)] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {submitting ? (
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -99,10 +131,10 @@ export function CategoriesPage() {
         <p className="text-[var(--text-muted)] text-sm text-center py-10">Aún no hay categorías. Crea la primera arriba.</p>
       ) : (
         <ul className="space-y-2 p-0 m-0 list-none">
-          {categories.map((cat) => (
-            <li key={cat.id} className="flex items-center gap-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl px-4 py-3 shadow-sm">
+          {getSortedCategories().map((cat) => (
+            <li key={cat.id} className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-[var(--bg-card)] border ${cat.parent_id ? 'border-dashed border-[var(--border-color)] ml-6 sm:ml-10' : 'border-[var(--border-color)]'} rounded-xl px-4 py-3 shadow-sm`}>
               {editingId === cat.id ? (
-                <>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
                   <input
                     autoFocus
                     value={editName}
@@ -110,41 +142,37 @@ export function CategoriesPage() {
                     onKeyDown={(e) => { if (e.key === 'Enter') handleUpdate(cat.id); if (e.key === 'Escape') setEditingId(null) }}
                     className="flex-1 bg-[var(--bg-primary)] border border-[var(--accent)] rounded-lg px-3 py-1.5 text-sm text-[var(--text-main)] focus:outline-none"
                   />
-                  <button
-                    onClick={() => handleUpdate(cat.id)}
-                    disabled={submitting}
-                    className="text-xs px-3 py-1.5 bg-[var(--accent)] text-white rounded-lg font-semibold hover:bg-[var(--accent-hover)] disabled:opacity-40 cursor-pointer"
-                  >
-                    Guardar
-                  </button>
-                  <button
-                    onClick={() => setEditingId(null)}
-                    className="text-xs px-3 py-1.5 bg-[var(--border-color)] text-[var(--text-muted)] rounded-lg hover:text-[var(--text-main)] cursor-pointer"
-                  >
-                    Cancelar
-                  </button>
-                </>
+                  {!cat.parent_id && categories.some(c => c.parent_id === cat.id) ? (
+                    <span className="text-[10px] text-[var(--text-muted)] italic">Tiene subcategorías</span>
+                  ) : (
+                    <select
+                      value={editParentId || ''}
+                      onChange={(e) => setEditParentId(e.target.value || null)}
+                      className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-2 py-1.5 text-xs text-[var(--text-main)] focus:outline-none"
+                    >
+                      <option value="">Principal</option>
+                      {parentCategories.filter(p => p.id !== cat.id).map(p => (
+                        <option key={p.id} value={p.id}>Sub de: {p.name}</option>
+                      ))}
+                    </select>
+                  )}
+                  <div className="flex gap-2 mt-2 sm:mt-0">
+                    <button onClick={() => handleUpdate(cat.id)} disabled={submitting} className="text-xs px-3 py-1.5 bg-[var(--accent)] text-white rounded-lg font-semibold hover:bg-[var(--accent-hover)]">Guardar</button>
+                    <button onClick={() => setEditingId(null)} className="text-xs px-3 py-1.5 bg-transparent border border-[var(--border-color)] text-[var(--text-muted)] rounded-lg hover:text-[var(--text-main)]">Cancelar</button>
+                  </div>
+                </div>
               ) : (
-                <>
+                <div className="flex items-center gap-3 w-full">
+                  {cat.parent_id && <i className="fas fa-level-up-alt rotate-90 text-[var(--text-muted)]/50 mr-1" />}
                   <div className="flex-1">
                     <span className="text-sm text-[var(--text-main)] font-medium">{cat.name}</span>
-                    <span className="ml-2 text-[11px] text-[var(--text-muted)] font-mono opacity-70">{cat.slug}</span>
+                    <span className="ml-2 text-[10px] text-[var(--text-muted)] font-mono opacity-60">
+                      {cat.slug}
+                    </span>
                   </div>
-                  <button
-                    onClick={() => startEdit(cat)}
-                    className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors p-1.5 cursor-pointer"
-                    title="Editar"
-                  >
-                    <i className="fas fa-pen text-xs" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(cat)}
-                    className="text-[var(--text-muted)] hover:text-red-500 transition-colors p-1.5 cursor-pointer"
-                    title="Eliminar"
-                  >
-                    <i className="fas fa-trash text-xs" />
-                  </button>
-                </>
+                  <button onClick={() => startEdit(cat)} className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors p-1.5 cursor-pointer" title="Editar"><i className="fas fa-pen text-xs" /></button>
+                  <button onClick={() => handleDelete(cat)} className="text-[var(--text-muted)] hover:text-red-500 transition-colors p-1.5 cursor-pointer" title="Eliminar"><i className="fas fa-trash text-xs" /></button>
+                </div>
               )}
             </li>
           ))}
