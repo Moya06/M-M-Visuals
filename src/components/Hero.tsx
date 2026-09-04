@@ -64,7 +64,7 @@ export function Hero() {
         </a>
       </div>
 
-      <div className="animate-fade-up [animation-delay:1200ms] absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 opacity-0">
+      <div className="animate-fade-up [animation-delay:1200ms] absolute bottom-10 left-1/2 -translate-x-1/2 z-10 hidden [@media(min-height:650px)]:flex flex-col items-center gap-2 opacity-0">
         <span className="text-[10px] tracking-[3px] uppercase text-[var(--text-muted)]">Descubre</span>
         <div className="w-px h-10 bg-gradient-to-b from-[var(--accent)] to-transparent animate-[scrollPulse_2s_ease-in-out_infinite]" />
       </div>
