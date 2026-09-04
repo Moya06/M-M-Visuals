@@ -9,7 +9,7 @@ import { PortfolioGrid } from '../components/Portfolio/PortfolioGrid'
 import { ImageModal } from '../components/Modal/ImageModal'
 import { About } from '../components/About'
 import { Footer } from '../components/Footer'
-import type { ImageData } from '../types'
+import type { ImageData, Photo } from '../types'
 
 export function PublicPage() {
   const progress = useProgressBar()
