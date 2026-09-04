@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import imageCompression from 'browser-image-compression'
 import { v4 as uuidv4 } from 'uuid'
 import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient'
+import { saveLocalPhoto } from '../../lib/localPhotoStore'
 import type { Category, Photo } from '../../types'
 
 interface Props {
@@ -18,6 +19,7 @@ export function UploadForm({ categories, onSuccess }: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string>('')
+  const [fileSizeMB, setFileSizeMB] = useState<number | null>(null)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [categoryId, setCategoryId] = useState('')
@@ -28,13 +30,15 @@ export function UploadForm({ categories, onSuccess }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   const markStep = (index: number) => {
-    setSteps((prev) => prev.map((s, i) => i === index ? { ...s, done: true } : s))
+    setSteps((prev) => prev.map((s, i) => (i === index ? { ...s, done: true } : s)))
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     setFileName(file.name)
+    const mb = file.size / (1024 * 1024)
+    setFileSizeMB(mb)
     const url = URL.createObjectURL(file)
     setPreview(url)
   }
@@ -42,6 +46,7 @@ export function UploadForm({ categories, onSuccess }: Props) {
   const reset = () => {
     setPreview(null)
     setFileName('')
+    setFileSizeMB(null)
     setTitle('')
     setDescription('')
     setCategoryId('')
@@ -59,57 +64,102 @@ export function UploadForm({ categories, onSuccess }: Props) {
     setUploading(true)
     setError(null)
     setProgress(0)
+
+    const MAX_LIMIT_MB = 15
+    const MAX_BYTES = MAX_LIMIT_MB * 1024 * 1024
+    const isLarge = file.size > MAX_BYTES
+
     setSteps([
-      { label: 'Comprimiendo imagen optimizada…', done: false },
-      { label: 'Generando thumbnail…', done: false },
-      { label: 'Subiendo imagen al storage…', done: false },
-      { label: 'Subiendo thumbnail…', done: false },
-      { label: 'Guardando en base de datos…', done: false },
+      {
+        label: isLarge
+          ? `Optimizando imagen (${(file.size / 1024 / 1024).toFixed(1)} MB ➔ ~15 MB sin reducir resolución)…`
+          : 'Preparando imagen (conservando 100% calidad original sin compresión)…',
+        done: false,
+      },
+      { label: 'Generando miniatura nítida (Retina) para la cuadrícula…', done: false },
+      { label: isSupabaseConfigured ? 'Subiendo imagen a Supabase Storage…' : 'Procesando imagen localmente…', done: false },
+      { label: isSupabaseConfigured ? 'Subiendo miniatura a Supabase Storage…' : 'Procesando miniatura localmente…', done: false },
+      { label: 'Guardando datos en el portafolio…', done: false },
     ])
 
     try {
       const id = uuidv4()
 
-      // ── PASO 1: Comprimir imagen optimizada (WebP <1.5 MB, max 2400px) ──
+      // ── PASO 1: Procesar imagen principal ──
+      // Si el archivo ya pesa <= 15 MB, conservamos el 100% de la calidad original intacta.
+      // Si pesa > 15 MB (ej. 40 MB), se comprime inteligentemente a ~14.8 MB preservando la resolución nativa.
+      let optimized: File = file
       setProgress(10)
-      const optimized = await imageCompression(file, {
-        maxSizeMB: 1.5,
-        maxWidthOrHeight: 2400,
-        useWebWorker: true,
-        fileType: 'image/webp',
-        initialQuality: 0.85,
-      })
-      markStep(0)
-      setProgress(30)
 
-      // ── PASO 2: Generar thumbnail (WebP <100 KB, max 600px) ──
+      if (isLarge) {
+        try {
+          // Intento 1: Mantener la resolución nativa original (6000x4000 etc.) con máxima fidelidad
+          optimized = await imageCompression(file, {
+            maxSizeMB: 14.8,
+            alwaysKeepResolution: true,
+            initialQuality: 0.98,
+            preserveExif: true,
+            useWebWorker: true,
+          })
+        } catch {
+          // Intento 2: Ajuste adaptativo con límite de 8K si el motor requiere margen
+          optimized = await imageCompression(file, {
+            maxSizeMB: 14.8,
+            maxWidthOrHeight: 7680,
+            initialQuality: 0.95,
+            preserveExif: true,
+            useWebWorker: true,
+          })
+        }
+      } else {
+        setProgress(25)
+      }
+      markStep(0)
+      setProgress(35)
+
+      // ── PASO 2: Generar thumbnail nítido (Retina / Pantallas modernas) ──
       const thumbnail = await imageCompression(file, {
-        maxSizeMB: 0.1,
-        maxWidthOrHeight: 600,
+        maxSizeMB: 0.6,
+        maxWidthOrHeight: 1200,
         useWebWorker: true,
         fileType: 'image/webp',
-        initialQuality: 0.80,
+        initialQuality: 0.90,
       })
       markStep(1)
       setProgress(50)
 
-      // Obtener dimensiones de la imagen optimizada
+      // Obtener dimensiones reales de la foto
       const img = new Image()
       const imgUrl = URL.createObjectURL(optimized)
-      await new Promise<void>((res) => { img.onload = () => res(); img.src = imgUrl })
+      await new Promise<void>((res) => {
+        img.onload = () => res()
+        img.src = imgUrl
+      })
       URL.revokeObjectURL(imgUrl)
       const { naturalWidth: width, naturalHeight: height } = img
 
-      // ── PASO 3 y 4: Subir o guardar localmente ──
+      // Determinar extensiones y Content-Types
+      const getExtension = (b: Blob, name: string) => {
+        if (b.type === 'image/webp') return 'webp'
+        if (b.type === 'image/png') return 'png'
+        if (b.type === 'image/jpeg' || b.type === 'image/jpg') return 'jpg'
+        const parts = name.split('.')
+        return parts.length > 1 ? parts.pop()!.toLowerCase() : 'jpg'
+      }
+
+      const ext = getExtension(optimized, file.name)
+      const optimizedKey = `optimized/${id}.${ext}`
+      const thumbnailKey = `thumbnails/${id}.webp`
+      const optContentType = optimized.type || (ext === 'webp' ? 'image/webp' : ext === 'png' ? 'image/png' : 'image/jpeg')
+
+      // ── PASO 3 y 4: Subir a Supabase o almacenar localmente con soporte de gran tamaño ──
       let url = ''
       let thumbnailUrl = ''
-      const optimizedKey = `optimized/${id}.webp`
-      const thumbnailKey = `thumbnails/${id}.webp`
 
       if (isSupabaseConfigured) {
         const { error: uploadErr } = await supabase.storage
           .from('photos')
-          .upload(optimizedKey, optimized, { contentType: 'image/webp', cacheControl: '31536000' })
+          .upload(optimizedKey, optimized, { contentType: optContentType, cacheControl: '31536000' })
 
         if (uploadErr) throw new Error(`Error subiendo imagen: ${uploadErr.message}`)
         markStep(2)
@@ -119,7 +169,7 @@ export function UploadForm({ categories, onSuccess }: Props) {
           .from('photos')
           .upload(thumbnailKey, thumbnail, { contentType: 'image/webp', cacheControl: '31536000' })
 
-        if (thumbErr) throw new Error(`Error subiendo thumbnail: ${thumbErr.message}`)
+        if (thumbErr) throw new Error(`Error subiendo miniatura: ${thumbErr.message}`)
         markStep(3)
         setProgress(85)
 
@@ -128,11 +178,12 @@ export function UploadForm({ categories, onSuccess }: Props) {
         url = optData.publicUrl
         thumbnailUrl = thumbData.publicUrl
       } else {
-        // Modo Local/Offline: Convertir a Data URL para previsualizar y almacenar localmente
+        // Modo Local: Convertir a Data URL y guardar mediante IndexedDB (sin límites de 5 MB de localStorage)
         const fileToDataUrl = (b: Blob): Promise<string> =>
-          new Promise((resolve) => {
+          new Promise((resolve, reject) => {
             const reader = new FileReader()
             reader.onloadend = () => resolve(reader.result as string)
+            reader.onerror = reject
             reader.readAsDataURL(b)
           })
 
@@ -145,7 +196,7 @@ export function UploadForm({ categories, onSuccess }: Props) {
         setProgress(85)
       }
 
-      // ── PASO 5: Insertar en la base de datos o almacenamiento local ──
+      // ── PASO 5: Insertar en base de datos o almacén local ──
       let newPhoto: Photo
 
       if (isSupabaseConfigured) {
@@ -184,9 +235,7 @@ export function UploadForm({ categories, onSuccess }: Props) {
           created_at: new Date().toISOString(),
         }
 
-        const savedPhotos = localStorage.getItem('portfolio_local_photos')
-        const currentList: Photo[] = savedPhotos ? JSON.parse(savedPhotos) : []
-        localStorage.setItem('portfolio_local_photos', JSON.stringify([newPhoto, ...currentList]))
+        await saveLocalPhoto(newPhoto)
       }
 
       markStep(4)
@@ -216,7 +265,7 @@ export function UploadForm({ categories, onSuccess }: Props) {
           <div className="text-[var(--text-muted)] group-hover:text-[var(--text-main)] transition-colors">
             <i className="fas fa-cloud-arrow-up text-3xl mb-3 block text-[var(--accent)]" />
             <p className="text-sm font-medium">Haz clic o arrastra una foto aquí</p>
-            <p className="text-xs mt-1 opacity-70">JPG, PNG, WEBP — cualquier peso</p>
+            <p className="text-xs mt-1 opacity-70">JPG, PNG, WEBP — Calidad profesional (hasta 15 MB por foto)</p>
           </div>
         )}
         <input
@@ -228,7 +277,37 @@ export function UploadForm({ categories, onSuccess }: Props) {
           required
         />
       </div>
-      {fileName && <p className="text-xs text-[var(--text-muted)]">{fileName}</p>}
+
+      {fileName && fileSizeMB !== null && (
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs px-3 py-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)]">
+            <span className="text-[var(--text-main)] font-medium truncate max-w-[240px]">
+              <i className="fas fa-image mr-1.5 text-[var(--accent)]" />
+              {fileName}
+            </span>
+            <span className="shrink-0 font-mono text-[var(--accent)] font-semibold ml-2">
+              {fileSizeMB.toFixed(1)} MB
+            </span>
+          </div>
+          <div className="text-[11px] text-[var(--text-muted)] flex items-start gap-1.5 px-1">
+            {fileSizeMB > 15 ? (
+              <>
+                <i className="fas fa-compress-arrows-alt text-[var(--accent)] mt-0.5" />
+                <span>
+                  Archivo de <strong>{fileSizeMB.toFixed(1)} MB</strong>: Se optimizará a <strong>~14-15 MB</strong> conservando su resolución original y máxima fidelidad de textura.
+                </span>
+              </>
+            ) : (
+              <>
+                <i className="fas fa-check-circle text-emerald-500 mt-0.5" />
+                <span>
+                  Archivo de <strong>{fileSizeMB.toFixed(1)} MB</strong>: Dentro del límite de 15 MB. Se subirá al <strong>100% de calidad original</strong> sin compresión.
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Metadatos */}
       <div className="grid grid-cols-2 gap-4">

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { Photo } from '../types'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
-
-const LOCAL_PHOTOS_KEY = 'portfolio_local_photos'
+import { getLocalPhotos, deleteLocalPhoto as removeLocalPhoto } from '../lib/localPhotoStore'
 
 export function usePhotos(categoryId?: string | null) {
   const [photos, setPhotos] = useState<Photo[]>([])
@@ -17,15 +16,7 @@ export function usePhotos(categoryId?: string | null) {
       setError(null)
 
       if (!isSupabaseConfigured) {
-        const saved = localStorage.getItem(LOCAL_PHOTOS_KEY)
-        let list: Photo[] = []
-        if (saved) {
-          try {
-            list = JSON.parse(saved)
-          } catch {
-            list = []
-          }
-        }
+        let list = await getLocalPhotos()
         if (categoryId) {
           list = list.filter((p) => p.category_id === categoryId)
         }
@@ -58,8 +49,7 @@ export function usePhotos(categoryId?: string | null) {
             setPhotos(data as Photo[])
           } else {
             // Cargar fotos locales subidas
-            const saved = localStorage.getItem(LOCAL_PHOTOS_KEY)
-            let list: Photo[] = saved ? JSON.parse(saved) : []
+            let list = await getLocalPhotos()
             if (categoryId) list = list.filter((p) => p.category_id === categoryId)
             setPhotos(list)
           }
@@ -67,8 +57,8 @@ export function usePhotos(categoryId?: string | null) {
         }
       } catch {
         if (!cancelled) {
-          const saved = localStorage.getItem(LOCAL_PHOTOS_KEY)
-          setPhotos(saved ? JSON.parse(saved) : [])
+          const list = await getLocalPhotos()
+          setPhotos(categoryId ? list.filter((p) => p.category_id === categoryId) : list)
           setLoading(false)
         }
       }
@@ -80,12 +70,8 @@ export function usePhotos(categoryId?: string | null) {
 
   const deletePhoto = async (photo: Photo) => {
     if (!isSupabaseConfigured) {
-      setPhotos((prev) => {
-        const updated = prev.filter((p) => p.id !== photo.id)
-        const localUploaded = updated.filter((p) => !p.id.startsWith('static-'))
-        localStorage.setItem(LOCAL_PHOTOS_KEY, JSON.stringify(localUploaded))
-        return updated
-      })
+      await removeLocalPhoto(photo.id)
+      setPhotos((prev) => prev.filter((p) => p.id !== photo.id))
       return { error: null }
     }
 
