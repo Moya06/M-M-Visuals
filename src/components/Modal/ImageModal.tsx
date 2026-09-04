@@ -604,13 +604,13 @@ export function ImageModal({
             }}
           />
 
-                   {/* Panel Flotante de Información / Narrativa */}
+          {/* Panel Flotante de Información / Narrativa */}
           {showInfo && currentImage.description && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className={`absolute bottom-2 left-2 right-2 md:bottom-6 md:left-auto md:right-6 w-auto md:max-w-sm z-50 p-4 md:p-5 rounded-2xl backdrop-blur-3xl shadow-[0_10px_40px_rgba(0,0,0,0.4)] animate-[fadeUp_0.2s_ease-out] ${isLight
-                  ? 'bg-white/95 border border-[var(--border-color)] text-[#25201b]'
-                  : 'bg-[#111111]/95 border border-white/15 text-white'
+              className={`absolute bottom-6 right-6 max-w-sm z-30 p-5 rounded-2xl backdrop-blur-2xl shadow-2xl animate-[fadeUp_0.2s_ease-out] ${isLight
+                ? 'bg-white/95 border border-[var(--border-color)] text-[#25201b]'
+                : 'bg-black/85 border border-white/15 text-white'
                 }`}
             >
               <div className="flex items-center justify-between mb-2">
@@ -625,13 +625,13 @@ export function ImageModal({
                   <i className="fas fa-times" />
                 </button>
               </div>
-              <h4 className="font-serif text-sm md:text-base font-bold mb-1.5">{displayTitle}</h4>
-              <p className={`text-[11px] md:text-xs leading-relaxed mb-3 ${isLight ? 'text-[#746b62]' : 'text-white/80'
+              <h4 className="font-serif text-base font-bold mb-1.5">{displayTitle}</h4>
+              <p className={`text-xs leading-relaxed mb-3 ${isLight ? 'text-[#746b62]' : 'text-white/80'
                 }`}>
                 {currentImage.description}
               </p>
               {currentImage.categoryName && (
-                <div className={`text-[10px] md:text-[11px] flex items-center gap-1.5 border-t pt-2.5 ${isLight ? 'text-[#746b62] border-black/10' : 'text-white/50 border-white/10'
+                <div className={`text-[11px] flex items-center gap-1.5 border-t pt-2.5 ${isLight ? 'text-[#746b62] border-black/10' : 'text-white/50 border-white/10'
                   }`}>
                   <i className="fas fa-tag text-[var(--accent)] text-[10px]" />
                   <span>Categoría: {currentImage.categoryName}</span>
@@ -639,6 +639,8 @@ export function ImageModal({
               )}
             </div>
           )}
+        </div>
+      </main>
 
       {/* ── BARRA INFERIOR (FILMSTRIP / TIRA DE MINIATURAS) ── */}
       {showThumbnails && images.length > 1 && (
