@@ -82,6 +82,18 @@ export function PhotosPage() {
                 )}
               </div>
 
+              {/* Botón descargar foto original (Admin) */}
+              <a
+                href={photo.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                download={photo.title || 'foto-mm-visuals'}
+                className="absolute top-2 left-2 w-7 h-7 bg-black/60 backdrop-blur-sm text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-emerald-600/90 flex items-center justify-center cursor-pointer shadow-sm"
+                title="Descargar foto original"
+              >
+                <i className="fas fa-arrow-down-to-bracket text-[10px]" />
+              </a>
+
               {/* Botón eliminar */}
               <button
                 onClick={() => handleDelete(photo)}

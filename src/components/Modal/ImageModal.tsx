@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
 import type { ImageData } from '../../types'
 import { useTheme } from '../../context/ThemeContext'
+import { useAuthContext } from '../../context/AuthContext'
 
 interface Props {
   isOpen: boolean
@@ -53,6 +54,8 @@ export function ImageModal({
 }: Props) {
   const { theme } = useTheme()
   const isLight = theme === 'light'
+  const { user, session } = useAuthContext()
+  const isAuthenticated = Boolean(user || session)
 
   const isDragging = useRef(false)
   const startX = useRef(0)
@@ -68,6 +71,36 @@ export function ImageModal({
   const [imageLoaded, setImageLoaded] = useState(false)
   const [showControls, setShowControls] = useState(true)
   const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Descarga de alta resolución (Solo para el fotógrafo con sesión iniciada)
+  const handleDownload = useCallback(async () => {
+    if (!isAuthenticated || !currentImage) return
+    try {
+      const res = await fetch(currentImage.src)
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      const baseName = (currentImage.title || 'mm-visuals-foto')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+      a.download = `${baseName || 'foto'}.jpg`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+    } catch {
+      const a = document.createElement('a')
+      a.href = currentImage.src
+      a.download = currentImage.title || 'foto'
+      a.target = '_blank'
+      a.rel = 'noopener noreferrer'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    }
+  }, [isAuthenticated, currentImage])
 
   // Reiniciar estado de carga al cambiar foto
   useEffect(() => {
@@ -107,8 +140,9 @@ export function ImageModal({
       else if (e.key === 'f' || e.key === 'F') onToggleFullscreen()
       else if (e.key === 'i' || e.key === 'I') onToggleInfo()
       else if (e.key === 't' || e.key === 'T') onToggleThumbnails()
+      else if ((e.key === 'd' || e.key === 'D') && isAuthenticated) handleDownload()
     },
-    [onClose, onNavigate, onZoomIn, onZoomOut, onResetZoom, onToggleFullscreen, onToggleInfo, onToggleThumbnails]
+    [onClose, onNavigate, onZoomIn, onZoomOut, onResetZoom, onToggleFullscreen, onToggleInfo, onToggleThumbnails, isAuthenticated, handleDownload]
   )
 
   useEffect(() => {
@@ -331,6 +365,22 @@ export function ImageModal({
           >
             <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'} text-xs`} />
           </button>
+
+          {/* Descarga exclusiva para cuenta iniciada (Admin) */}
+          {isAuthenticated && (
+            <button
+              onClick={handleDownload}
+              aria-label="Descargar foto original"
+              title="Descargar foto original (Admin · D)"
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                isLight
+                  ? 'bg-emerald-500/15 hover:bg-emerald-500 text-emerald-700 hover:text-white'
+                  : 'bg-emerald-500/25 hover:bg-emerald-500 text-emerald-300 hover:text-white'
+              }`}
+            >
+              <i className="fas fa-arrow-down-to-bracket text-xs" />
+            </button>
+          )}
 
           <div className={`w-px h-4 mx-0.5 ${isLight ? 'bg-black/15' : 'bg-white/15'}`} />
 
