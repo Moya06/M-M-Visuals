@@ -48,11 +48,11 @@ export function PhotosPage() {
       {/* Grid de fotos */}
       {loading ? (
         <div className="flex justify-center py-20">
-          <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : photos.length === 0 ? (
-        <div className="text-center py-20 text-[#555]">
-          <i className="fas fa-images text-4xl mb-4 block text-[#333]" />
+        <div className="text-center py-20 text-[var(--text-muted)]">
+          <i className="fas fa-images text-4xl mb-4 block text-[var(--text-muted)]/50" />
           <p>Aún no hay fotos. Sube la primera.</p>
         </div>
       ) : (
@@ -60,7 +60,7 @@ export function PhotosPage() {
           {photos.map((photo) => (
             <div
               key={photo.id}
-              className="group relative bg-[#111] border border-white/[0.07] rounded-xl overflow-hidden"
+              className="group relative bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden shadow-sm"
             >
               {/* Thumbnail */}
               <div className="aspect-square overflow-hidden">

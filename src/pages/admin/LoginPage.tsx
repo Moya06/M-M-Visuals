@@ -55,32 +55,32 @@ export function LoginPage() {
           <div className="text-[11px] tracking-[4px] uppercase text-[var(--accent)] font-semibold mt-1">Panel de Administración</div>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-8 space-y-5 shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+        <form onSubmit={handleSubmit} className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-8 space-y-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
           <div>
-            <label className="block text-xs text-[#999] tracking-[1px] uppercase mb-2">Usuario o Email</label>
+            <label className="block text-xs text-[var(--text-muted)] font-medium tracking-[1px] uppercase mb-2">Usuario o Email</label>
             <input
               type="text"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="fabianmoya353"
-              className="w-full bg-[#1a1a1a] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#c9a84c] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg px-4 py-3 text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)]/60 focus:outline-none focus:border-[var(--accent)] transition-colors"
             />
           </div>
           <div>
-            <label className="block text-xs text-[#999] tracking-[1px] uppercase mb-2">Contraseña</label>
+            <label className="block text-xs text-[var(--text-muted)] font-medium tracking-[1px] uppercase mb-2">Contraseña</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-[#1a1a1a] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#c9a84c] transition-colors"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg px-4 py-3 text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)]/60 focus:outline-none focus:border-[var(--accent)] transition-colors"
             />
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-sm text-red-400">
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-sm text-red-500">
               {error}
             </div>
           )}
@@ -88,17 +88,17 @@ export function LoginPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 bg-[#c9a84c] text-[#0a0a0a] rounded-lg font-semibold text-sm tracking-[1px] uppercase transition-all duration-300 hover:bg-[#dbb94f] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-3 bg-[var(--accent)] text-white rounded-lg font-semibold text-sm tracking-[1px] uppercase transition-all duration-300 hover:bg-[var(--accent-hover)] hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
           >
             {submitting
-              ? <><div className="w-4 h-4 border-2 border-[#0a0a0a] border-t-transparent rounded-full animate-spin" /> Iniciando…</>
+              ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Iniciando…</>
               : 'Iniciar sesión'
             }
           </button>
         </form>
 
-        <p className="text-center text-[#444] text-xs mt-6">
-          Acceso exclusivo para administrador
+        <p className="text-center text-[var(--text-muted)] text-xs mt-6">
+          Acceso exclusivo para administrador · M&M Visuals
         </p>
       </div>
     </div>
