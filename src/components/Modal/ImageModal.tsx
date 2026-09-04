@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
+import imageCompression from 'browser-image-compression'
 import type { ImageData } from '../../types'
 import { useTheme } from '../../context/ThemeContext'
 import { useAuthContext } from '../../context/AuthContext'
@@ -72,35 +73,108 @@ export function ImageModal({
   const [showControls, setShowControls] = useState(true)
   const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Descarga de alta resolución (Solo para el fotógrafo con sesión iniciada)
-  const handleDownload = useCallback(async () => {
-    if (!isAuthenticated || !currentImage) return
-    try {
-      const res = await fetch(currentImage.src)
-      const blob = await res.blob()
-      const blobUrl = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = blobUrl
+  const [downloading, setDownloading] = useState(false)
+  const [downloadToast, setDownloadToast] = useState<string | null>(null)
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false)
+  const downloadMenuRef = useRef<HTMLDivElement>(null)
+
+  // Cerrar menú de descarga al hacer click fuera
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (downloadMenuRef.current && !downloadMenuRef.current.contains(e.target as Node)) {
+        setShowDownloadMenu(false)
+      }
+    }
+    if (showDownloadMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showDownloadMenu])
+
+  // Descarga inteligente de alta fidelidad (Solo para el fotógrafo con sesión iniciada)
+  const executeDownload = useCallback(
+    async (mode: 'auto' | 'mobile' | 'original' = 'auto') => {
+      if (!isAuthenticated || !currentImage || downloading) return
+
+      setDownloading(true)
+      setShowDownloadMenu(false)
+
+      const isMobileDevice =
+        /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768
+      const targetMode = mode === 'auto' ? (isMobileDevice ? 'mobile' : 'original') : mode
+
       const baseName = (currentImage.title || 'mm-visuals-foto')
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '')
-      a.download = `${baseName || 'foto'}.jpg`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(blobUrl)
-    } catch {
-      const a = document.createElement('a')
-      a.href = currentImage.src
-      a.download = currentImage.title || 'foto'
-      a.target = '_blank'
-      a.rel = 'noopener noreferrer'
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-    }
-  }, [isAuthenticated, currentImage])
+
+      setDownloadToast(
+        targetMode === 'mobile'
+          ? 'Preparando foto para celular (~2 MB · Ultra HD)...'
+          : 'Descargando archivo original en máxima calidad...'
+      )
+
+      try {
+        const res = await fetch(currentImage.src)
+        const rawBlob = await res.blob()
+
+        let finalBlob: Blob = rawBlob
+
+        // En modo móvil, si la foto pesa más de 2.2 MB, se optimiza a ~2.0 MB con resolución 3200px (calidad 0.93)
+        // Esto mantiene nitidez Retina/4K absoluta en teléfonos sin sobrecargar la memoria ni ralentizar la descarga.
+        if (targetMode === 'mobile' && rawBlob.size > 2.2 * 1024 * 1024) {
+          try {
+            const tempFile = new File([rawBlob], 'image.jpg', {
+              type: rawBlob.type || 'image/jpeg',
+            })
+            finalBlob = await imageCompression(tempFile, {
+              maxSizeMB: 2.0,
+              maxWidthOrHeight: 3200,
+              initialQuality: 0.93,
+              useWebWorker: true,
+              fileType: 'image/jpeg',
+            })
+          } catch (err) {
+            console.warn('Fallback a imagen original:', err)
+            finalBlob = rawBlob
+          }
+        }
+
+        const blobUrl = URL.createObjectURL(finalBlob)
+        const a = document.createElement('a')
+        a.href = blobUrl
+        a.target = '_self'
+        const suffix = targetMode === 'mobile' ? '-mobile-hd' : '-original'
+        a.download = `${baseName || 'foto'}${suffix}.jpg`
+        document.body.appendChild(a)
+        a.click()
+
+        const finalMB = (finalBlob.size / (1024 * 1024)).toFixed(1)
+        setDownloadToast(`¡Descarga lista! (${finalMB} MB)`)
+        setTimeout(() => setDownloadToast(null), 3500)
+
+        // Limpieza diferida para compatibilidad con iOS Safari y Chrome Mobile
+        setTimeout(() => {
+          if (document.body.contains(a)) document.body.removeChild(a)
+          URL.revokeObjectURL(blobUrl)
+        }, 12000)
+      } catch {
+        const a = document.createElement('a')
+        a.href = currentImage.src
+        a.download = `${baseName || 'foto'}.jpg`
+        a.target = '_blank'
+        a.rel = 'noopener noreferrer'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        setDownloadToast('Iniciando descarga...')
+        setTimeout(() => setDownloadToast(null), 2500)
+      } finally {
+        setDownloading(false)
+      }
+    },
+    [isAuthenticated, currentImage, downloading]
+  )
 
   // Reiniciar estado de carga al cambiar foto
   useEffect(() => {
@@ -140,9 +214,9 @@ export function ImageModal({
       else if (e.key === 'f' || e.key === 'F') onToggleFullscreen()
       else if (e.key === 'i' || e.key === 'I') onToggleInfo()
       else if (e.key === 't' || e.key === 'T') onToggleThumbnails()
-      else if ((e.key === 'd' || e.key === 'D') && isAuthenticated) handleDownload()
+      else if ((e.key === 'd' || e.key === 'D') && isAuthenticated) executeDownload('auto')
     },
-    [onClose, onNavigate, onZoomIn, onZoomOut, onResetZoom, onToggleFullscreen, onToggleInfo, onToggleThumbnails, isAuthenticated, handleDownload]
+    [onClose, onNavigate, onZoomIn, onZoomOut, onResetZoom, onToggleFullscreen, onToggleInfo, onToggleThumbnails, isAuthenticated, executeDownload]
   )
 
   useEffect(() => {
@@ -366,20 +440,85 @@ export function ImageModal({
             <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'} text-xs`} />
           </button>
 
-          {/* Descarga exclusiva para cuenta iniciada (Admin) */}
+          {/* Descarga inteligente exclusiva para cuenta iniciada (Admin) */}
           {isAuthenticated && (
-            <button
-              onClick={handleDownload}
-              aria-label="Descargar foto original"
-              title="Descargar foto original (Admin · D)"
-              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${
-                isLight
-                  ? 'bg-emerald-500/15 hover:bg-emerald-500 text-emerald-700 hover:text-white'
-                  : 'bg-emerald-500/25 hover:bg-emerald-500 text-emerald-300 hover:text-white'
-              }`}
-            >
-              <i className="fas fa-arrow-down-to-bracket text-xs" />
-            </button>
+            <div className="relative" ref={downloadMenuRef}>
+              <div className="flex items-center">
+                <button
+                  onClick={() => executeDownload('auto')}
+                  disabled={downloading}
+                  aria-label="Descargar foto"
+                  title="Descargar foto (Auto: ~2 MB en cel / Original en PC) · Atajo: D"
+                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer disabled:opacity-50 ${
+                    isLight
+                      ? 'bg-emerald-500/15 hover:bg-emerald-500 text-emerald-700 hover:text-white'
+                      : 'bg-emerald-500/25 hover:bg-emerald-500 text-emerald-300 hover:text-white'
+                  }`}
+                >
+                  {downloading ? (
+                    <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <i className="fas fa-arrow-down-to-bracket text-xs" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowDownloadMenu((v) => !v)}
+                  disabled={downloading}
+                  aria-label="Opciones de calidad de descarga"
+                  title="Elegir calidad (Móvil ~2MB / Original)"
+                  className={`w-4 h-9 -ml-0.5 flex items-center justify-center transition-all cursor-pointer opacity-70 hover:opacity-100 text-[9px] ${
+                    isLight ? 'text-[#25201b]' : 'text-white'
+                  }`}
+                >
+                  <i className="fas fa-caret-down" />
+                </button>
+              </div>
+
+              {/* Menú flotante de calidad */}
+              {showDownloadMenu && (
+                <div
+                  className={`absolute right-0 mt-2 w-64 rounded-2xl p-2 z-50 backdrop-blur-2xl shadow-2xl border animate-[fadeUp_0.15s_ease-out] ${
+                    isLight
+                      ? 'bg-white/95 border-[var(--border-color)] text-[#25201b]'
+                      : 'bg-[#141414]/95 border-white/15 text-white'
+                  }`}
+                >
+                  <div className="px-3 py-1.5 border-b border-black/5 dark:border-white/10 mb-1">
+                    <span className="text-[10px] tracking-[1.5px] uppercase font-bold text-[var(--accent)]">
+                      Calidad de descarga
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => executeDownload('mobile')}
+                    className={`w-full text-left px-3 py-2.5 rounded-xl text-xs transition-colors flex items-center gap-2.5 cursor-pointer ${
+                      isLight ? 'hover:bg-black/5' : 'hover:bg-white/10'
+                    }`}
+                  >
+                    <i className="fas fa-mobile-screen-button text-base text-[var(--accent)]" />
+                    <div>
+                      <p className="font-semibold text-xs">Versión Móvil (~2 MB)</p>
+                      <p className={`text-[10px] ${isLight ? 'text-[#746b62]' : 'text-white/60'}`}>
+                        3200px Ultra HD, ideal para celular y WhatsApp
+                      </p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => executeDownload('original')}
+                    className={`w-full text-left px-3 py-2.5 rounded-xl text-xs transition-colors flex items-center gap-2.5 cursor-pointer ${
+                      isLight ? 'hover:bg-black/5' : 'hover:bg-white/10'
+                    }`}
+                  >
+                    <i className="fas fa-camera text-base text-emerald-500" />
+                    <div>
+                      <p className="font-semibold text-xs">Calidad Original Completa</p>
+                      <p className={`text-[10px] ${isLight ? 'text-[#746b62]' : 'text-white/60'}`}>
+                        Archivo de cámara en máxima resolución
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
           )}
 
           <div className={`w-px h-4 mx-0.5 ${isLight ? 'bg-black/15' : 'bg-white/15'}`} />
@@ -411,6 +550,18 @@ export function ImageModal({
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Notificación flotante de estado de descarga */}
+        {downloadToast && (
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-black/85 text-white text-xs font-medium shadow-2xl backdrop-blur-xl border border-white/20 flex items-center gap-2.5 animate-[fadeUp_0.2s_ease-out]">
+            {downloading ? (
+              <div className="w-3.5 h-3.5 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin shrink-0" />
+            ) : (
+              <i className="fas fa-check-circle text-emerald-400 shrink-0" />
+            )}
+            <span>{downloadToast}</span>
+          </div>
+        )}
+
         {/* Botón Anterior Flotante */}
         <button
           onClick={(e) => {
