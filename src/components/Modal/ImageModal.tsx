@@ -174,18 +174,6 @@ export function ImageModal({
     }
   }
 
-  // Descargar foto en alta calidad
-  const handleDownload = () => {
-    if (!currentImage?.src) return
-    const link = document.createElement('a')
-    link.href = currentImage.src
-    link.download = currentImage.title ? `${currentImage.title}.jpg` : `mm-visuals-${currentIndex + 1}.jpg`
-    link.target = '_blank'
-    link.rel = 'noreferrer'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
 
   if (!isOpen || !currentImage) return null
 
@@ -298,15 +286,6 @@ export function ImageModal({
             </button>
           )}
 
-          {/* Descargar / HD */}
-          <button
-            onClick={handleDownload}
-            aria-label="Descargar foto"
-            title="Descargar imagen HD"
-            className="w-9 h-9 rounded-full text-white/80 hover:text-white hover:bg-white/15 flex items-center justify-center transition-all cursor-pointer"
-          >
-            <i className="fas fa-arrow-down-to-line text-xs" />
-          </button>
 
           {/* Pantalla completa */}
           <button
