@@ -1,0 +1,27 @@
+import type { ImageData } from '../types'
+
+export const images: ImageData[] = [
+  { src: 'fotos/AVEJA.JPG' }, { src: 'fotos/DSC00812.PNG' },
+  { src: 'fotos/DSC00817.PNG' }, { src: 'fotos/DSC00847.png' },
+  { src: 'fotos/DSC00855.JPG' }, { src: 'fotos/DSC00938.JPG' },
+  { src: 'fotos/DSC00946.JPG' }, { src: 'fotos/DSC00952-2.PNG' },
+  { src: 'fotos/DSC00953.PNG' }, { src: 'fotos/DSC00961.JPG' },
+  { src: 'fotos/DSC00964.JPG' }, { src: 'fotos/DSC00980.JPG' },
+  { src: 'fotos/DSC00983.JPG' }, { src: 'fotos/DSC00984.JPG' },
+  { src: 'fotos/DSC00990.JPG' }, { src: 'fotos/DSC00998.JPG' },
+  { src: 'fotos/DSC00999.JPG' }, { src: 'fotos/DSC01006.PNG' },
+  { src: 'fotos/DSC01017.JPG' }, { src: 'fotos/DSC01029-2.PNG' },
+  { src: 'fotos/DSC01156.PNG' }, { src: 'fotos/DSC01168.JPG' },
+  { src: 'fotos/DSC01170.JPG' }, { src: 'fotos/DSC01207.JPG' },
+  { src: 'fotos/DSC01209.JPG' }, { src: 'fotos/DSC01221.PNG' },
+  { src: 'fotos/DSC01304new.png' }, { src: 'fotos/DSC01307.JPG' },
+  { src: 'fotos/DSC01322-2.PNG' }, { src: 'fotos/DSC01326.JPG' },
+  { src: 'fotos/DSC01334.JPG' }, { src: 'fotos/DSC01337.JPG' },
+  { src: 'fotos/DSC01340.JPG' }, { src: 'fotos/DSC01348.JPG' },
+  { src: 'fotos/DSC01355.JPG' }, { src: 'fotos/DSC01366.PNG' },
+  { src: 'fotos/DSC01394.JPG' }, { src: 'fotos/DSC01406.JPG' },
+  { src: 'fotos/DSC01407.JPG' }, { src: 'fotos/DSC01414.JPG' },
+  { src: 'fotos/DSC01417.JPG' }, { src: 'fotos/DSC01323.PNG' },
+  { src: 'fotos/_DSC1035.png' }, { src: 'fotos/_DSC1084.png' },
+  { src: 'fotos/_DSC1091.png' }, { src: 'fotos/_DSC1796 (1).png' },
+]

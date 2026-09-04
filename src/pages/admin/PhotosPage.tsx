@@ -1,0 +1,103 @@
+import { useState } from 'react'
+import { usePhotos } from '../../hooks/usePhotos'
+import { useCategories } from '../../hooks/useCategories'
+import { UploadForm } from './UploadForm'
+import type { Photo } from '../../types'
+
+export function PhotosPage() {
+  const { photos, loading, deletePhoto, setPhotos } = usePhotos()
+  const { categories } = useCategories()
+  const [showForm, setShowForm] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  const handleSuccess = (photo: Photo) => {
+    setPhotos((prev) => [photo, ...prev])
+    setShowForm(false)
+  }
+
+  const handleDelete = async (photo: Photo) => {
+    if (!confirm(`¿Eliminar la foto "${photo.title ?? photo.id}"? Esta acción no se puede deshacer.`)) return
+    setDeletingId(photo.id)
+    await deletePhoto(photo)
+    setDeletingId(null)
+  }
+
+  return (
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-serif text-[var(--text-main)] mb-1 font-bold">Fotos</h1>
+          <p className="text-[var(--text-muted)] text-sm">{photos.length} foto{photos.length !== 1 ? 's' : ''} en el portafolio</p>
+        </div>
+        <button
+          onClick={() => setShowForm((v) => !v)}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--accent)] text-white rounded-xl text-sm font-semibold hover:bg-[var(--accent-hover)] transition-colors shadow-sm cursor-pointer"
+        >
+          <i className={`fas ${showForm ? 'fa-xmark' : 'fa-upload'}`} />
+          {showForm ? 'Cancelar' : 'Subir foto'}
+        </button>
+      </div>
+
+      {/* Formulario de subida */}
+      {showForm && (
+        <div className="mb-10 max-w-xl">
+          <UploadForm categories={categories} onSuccess={handleSuccess} />
+        </div>
+      )}
+
+      {/* Grid de fotos */}
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : photos.length === 0 ? (
+        <div className="text-center py-20 text-[#555]">
+          <i className="fas fa-images text-4xl mb-4 block text-[#333]" />
+          <p>Aún no hay fotos. Sube la primera.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {photos.map((photo) => (
+            <div
+              key={photo.id}
+              className="group relative bg-[#111] border border-white/[0.07] rounded-xl overflow-hidden"
+            >
+              {/* Thumbnail */}
+              <div className="aspect-square overflow-hidden">
+                <img
+                  src={photo.thumbnail_url ?? photo.url}
+                  alt={photo.title ?? ''}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+
+              {/* Overlay con info */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-3 flex flex-col justify-end">
+                {photo.title && (
+                  <p className="text-xs text-white font-medium truncate">{photo.title}</p>
+                )}
+                {photo.category && (
+                  <p className="text-[10px] text-[#c9a84c] mt-0.5">{photo.category.name}</p>
+                )}
+              </div>
+
+              {/* Botón eliminar */}
+              <button
+                onClick={() => handleDelete(photo)}
+                disabled={deletingId === photo.id}
+                className="absolute top-2 right-2 w-7 h-7 bg-black/60 backdrop-blur-sm text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80 flex items-center justify-center"
+                title="Eliminar foto"
+              >
+                {deletingId === photo.id
+                  ? <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+                  : <i className="fas fa-trash text-[10px]" />
+                }
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}

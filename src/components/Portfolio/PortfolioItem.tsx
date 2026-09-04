@@ -1,0 +1,57 @@
+import { useEffect, useRef, useState } from 'react'
+import type { ImageData } from '../../types'
+
+interface Props {
+  image: ImageData
+  index: number
+  onOpen: (index: number) => void
+}
+
+export function PortfolioItem({ image, index, onOpen }: Props) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (!('IntersectionObserver' in window)) {
+      setIsVisible(true)
+      return
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+          observer.unobserve(entry.target)
+        }
+      },
+      { threshold: 0.1 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      className={`relative cursor-pointer bg-[#1a1a1a] break-inside-avoid mb-6 rounded-xl overflow-hidden transition-all duration-600 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] group ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+      style={{ transitionDelay: `${index * 50}ms` }}
+      onClick={() => onOpen(index)}
+    >
+      <img
+        src={image.src}
+        className="w-full h-auto block transition-transform duration-800 group-hover:scale-105"
+        alt=""
+        loading="lazy"
+        decoding="async"
+        fetchPriority={index < 6 ? 'high' : undefined}
+        onError={(e) => {
+          e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="%23222" width="400" height="300"/><text x="50%" y="50%" fill="%23555" text-anchor="middle" dy=".3em" font-family="sans-serif">Sin imagen</text></svg>'
+        }}
+      />
+      <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        <i className="fas fa-eye text-white text-2xl" />
+      </div>
+    </div>
+  )
+}
