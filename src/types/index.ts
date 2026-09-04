@@ -1,6 +1,12 @@
-// ── Tipo legado (compatibilidad con Modal existente) ──────────────────────────
 export interface ImageData {
   src: string
+  title?: string | null
+  description?: string | null
+  categoryName?: string | null
+  thumbnailSrc?: string | null
+  width?: number | null
+  height?: number | null
+  date?: string | null
 }
 
 // ── Tipos de Supabase ─────────────────────────────────────────────────────────

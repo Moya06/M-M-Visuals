@@ -7,7 +7,7 @@ interface Props {
   photos: Photo[]
   categories: Category[]
   loading?: boolean
-  onOpenImage: (index: number) => void
+  onOpenImage: (index: number, currentList: Photo[]) => void
 }
 
 export function PortfolioGrid({ photos, categories, loading = false, onOpenImage }: Props) {
@@ -56,7 +56,7 @@ export function PortfolioGrid({ photos, categories, loading = false, onOpenImage
               key={photo.id}
               image={{ src: photo.thumbnail_url ?? photo.url }}
               index={i}
-              onOpen={onOpenImage}
+              onOpen={() => onOpenImage(i, filtered)}
             />
           ))}
         </div>

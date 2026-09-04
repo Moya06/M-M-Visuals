@@ -16,9 +16,25 @@ export function PublicPage() {
   const { photos, loading: photosLoading } = usePhotos()
   const { categories } = useCategories()
 
-  // Adaptar fotos a ImageData para el modal (usa la URL full-res)
-  const imageList: ImageData[] = photos.map((p) => ({ src: p.url }))
-  const modal = useImageModal(imageList)
+  // Adaptar foto a ImageData para el visor con todos sus metadatos
+  const mapPhotoToImageData = (p: Photo): ImageData => ({
+    src: p.url,
+    title: p.title,
+    description: p.description,
+    categoryName: p.category?.name,
+    thumbnailSrc: p.thumbnail_url || p.url,
+    width: p.width,
+    height: p.height,
+    date: p.created_at,
+  })
+
+  const initialImages: ImageData[] = photos.map(mapPhotoToImageData)
+  const modal = useImageModal(initialImages)
+
+  const handleOpenImage = (index: number, currentList: Photo[]) => {
+    const list = currentList.map(mapPhotoToImageData)
+    modal.open(index, list)
+  }
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans antialiased transition-colors duration-300">
@@ -34,22 +50,31 @@ export function PublicPage() {
         photos={photos}
         categories={categories}
         loading={photosLoading}
-        onOpenImage={modal.open}
+        onOpenImage={handleOpenImage}
       />
       <ImageModal
         isOpen={modal.isOpen}
-        currentImage={modal.currentImage ?? { src: '' }}
+        currentImage={modal.currentImage}
+        images={modal.images}
         currentIndex={modal.currentIndex}
-        total={imageList.length}
+        total={modal.images.length}
         scale={modal.scale}
         pan={modal.pan}
+        isFullscreen={modal.isFullscreen}
+        showInfo={modal.showInfo}
+        showThumbnails={modal.showThumbnails}
         onClose={modal.close}
         onNavigate={modal.navigate}
+        onGoTo={modal.goTo}
         onZoomIn={modal.zoomIn}
         onZoomOut={modal.zoomOut}
         onZoom={modal.zoom}
+        onToggleZoom={modal.toggleZoom}
         onResetZoom={modal.resetZoom}
         onPan={modal.handlePan}
+        onToggleFullscreen={modal.toggleFullscreen}
+        onToggleInfo={modal.toggleInfo}
+        onToggleThumbnails={modal.toggleThumbnails}
       />
       <About />
       <Footer />
