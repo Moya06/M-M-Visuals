@@ -28,7 +28,7 @@ export function Header() {
       <div className="max-w-[1300px] mx-auto px-6">
         <nav className="flex justify-between items-center py-2.5">
           {/* Logo en la esquina: grande, transparente por defecto, aro sutil solo en hover */}
-          <a href="#" className="flex items-center gap-4 no-underline group py-1">
+          <a href="https://mymvisuals.vercel.app/" className="flex items-center gap-4 no-underline group py-1">
             <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center p-0.5 transition-transform duration-300 group-hover:scale-105 shrink-0">
               {/* Aro dorado centrado geométricamente con todo el emblema y sus salientes */}
               <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-[var(--accent)] group-hover:shadow-[0_0_20px_rgba(201,168,76,0.4)] transition-all duration-300 opacity-0 group-hover:opacity-100 pointer-events-none" />
