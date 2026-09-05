@@ -76,9 +76,21 @@ export function Hero() {
         </a>
       </div>
 
-      <div className="animate-fade-up [animation-delay:1200ms] absolute bottom-8 left-1/2 -translate-x-1/2 z-10 hidden [@media(min-height:650px)]:flex flex-col items-center gap-2 opacity-0 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-        <span className="text-[10px] tracking-[3px] uppercase text-white/90 font-semibold">Descubre</span>
-        <div className="w-px h-8 bg-gradient-to-b from-[#e8c872] to-transparent animate-[scrollPulse_2s_ease-in-out_infinite]" />
+      <div
+        className={`animate-fade-up [animation-delay:1200ms] absolute bottom-8 left-1/2 -translate-x-1/2 z-10 hidden [@media(min-height:650px)]:flex flex-col items-center gap-2 opacity-0 transition-all duration-300 ${
+          theme === 'light'
+            ? 'text-[#2e2924]'
+            : 'text-neutral-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]'
+        }`}
+      >
+        <span className="text-[10px] tracking-[3px] uppercase font-semibold">Descubre</span>
+        <div
+          className={`w-px h-8 bg-gradient-to-b animate-[scrollPulse_2s_ease-in-out_infinite] ${
+            theme === 'light'
+              ? 'from-[#2e2924] to-transparent'
+              : 'from-[#e8c872] to-transparent'
+          }`}
+        />
       </div>
     </section>
   )
