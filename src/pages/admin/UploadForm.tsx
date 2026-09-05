@@ -389,8 +389,9 @@ export function UploadForm({ categories, onSuccess }: Props) {
 
       {/* Error */}
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-sm text-red-500">
-          {error}
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-xs sm:text-sm text-red-500 flex items-center gap-2.5">
+          <i className="fas fa-circle-exclamation shrink-0 text-base" />
+          <span className="leading-snug">{error}</span>
         </div>
       )}
 

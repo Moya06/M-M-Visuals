@@ -1,8 +1,10 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import imageCompression from 'browser-image-compression'
 import { usePhotos } from '../../hooks/usePhotos'
 import { useCategories } from '../../hooks/useCategories'
 import { UploadForm } from './UploadForm'
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
+import { ToastNotification } from '../../components/ui/ToastNotification'
 import type { Photo } from '../../types'
 
 export function PhotosPage() {
@@ -13,16 +15,25 @@ export function PhotosPage() {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [downloadModalPhoto, setDownloadModalPhoto] = useState<Photo | null>(null)
+  const [photoToDelete, setPhotoToDelete] = useState<Photo | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' | 'loading' } | null>(null)
 
   const handleSuccess = (photo: Photo) => {
     setPhotos((prev) => [photo, ...prev])
     setShowForm(false)
+    setToast({ message: '¡Fotografía agregada con éxito al portafolio!', type: 'success' })
+    setTimeout(() => setToast(null), 3500)
   }
 
   const handleDownload = async (photo: Photo, mode: 'original' | 'mobile' = 'original', e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
     if (downloadingId) return
     setDownloadingId(photo.id)
+
+    setToast({
+      message: mode === 'mobile' ? 'Preparando foto para celular (~2 MB · Ultra HD)…' : 'Descargando archivo original en máxima calidad…',
+      type: 'loading',
+    })
 
     try {
       const res = await fetch(photo.url)
@@ -67,6 +78,10 @@ export function PhotosPage() {
       document.body.appendChild(a)
       a.click()
 
+      const finalMB = (finalBlob.size / (1024 * 1024)).toFixed(1)
+      setToast({ message: `¡Descarga lista! (${finalMB} MB)`, type: 'success' })
+      setTimeout(() => setToast(null), 3500)
+
       setTimeout(() => {
         if (document.body.contains(a)) document.body.removeChild(a)
         URL.revokeObjectURL(blobUrl)
@@ -81,18 +96,27 @@ export function PhotosPage() {
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
+      setToast({ message: 'Iniciando descarga directa...', type: 'info' })
+      setTimeout(() => setToast(null), 2500)
     } finally {
       setDownloadingId(null)
     }
   }
 
-  const handleDelete = async (photo: Photo) => {
-    if (!confirm(`¿Eliminar la foto "${photo.title ?? photo.id}"? Esta acción no se puede deshacer.`)) return
-    setDeletingId(photo.id)
-    await deletePhoto(photo)
-    if (selectedPhoto?.id === photo.id) {
+  const handleConfirmDelete = async () => {
+    if (!photoToDelete) return
+    setDeletingId(photoToDelete.id)
+    const { error } = await deletePhoto(photoToDelete)
+    if (error) {
+      setToast({ message: `Error al eliminar: ${(error as { message?: string })?.message ?? 'desconocido'}`, type: 'error' })
+    } else {
+      setToast({ message: 'Fotografía eliminada del portafolio', type: 'success' })
+    }
+    setTimeout(() => setToast(null), 3500)
+    if (selectedPhoto?.id === photoToDelete.id) {
       setSelectedPhoto(null)
     }
+    setPhotoToDelete(null)
     setDeletingId(null)
   }
 
@@ -207,7 +231,7 @@ export function PhotosPage() {
                   {/* Botón Delete */}
                   <button
                     type="button"
-                    onClick={() => handleDelete(photo)}
+                    onClick={() => setPhotoToDelete(photo)}
                     disabled={deletingId === photo.id}
                     className="py-1.5 px-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50"
                     title="Eliminar foto"
@@ -378,7 +402,7 @@ export function PhotosPage() {
             <div className="pt-2 border-t border-[var(--border-color)] flex justify-end">
               <button
                 type="button"
-                onClick={() => handleDelete(selectedPhoto)}
+                onClick={() => setPhotoToDelete(selectedPhoto)}
                 disabled={deletingId === selectedPhoto.id}
                 className="w-full sm:w-auto py-2.5 px-4 bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
@@ -477,6 +501,25 @@ export function PhotosPage() {
           </div>
         </div>
       )}
+
+      {/* Diálogo de confirmación para eliminar foto */}
+      <ConfirmDialog
+        isOpen={Boolean(photoToDelete)}
+        title="¿Eliminar fotografía?"
+        message="Esta acción no se puede deshacer y borrará la imagen de forma permanente del almacenamiento."
+        itemName={photoToDelete?.title || undefined}
+        confirmText="Eliminar foto"
+        cancelText="Cancelar"
+        isDanger={true}
+        loading={Boolean(deletingId)}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          if (!deletingId) setPhotoToDelete(null)
+        }}
+      />
+
+      {/* Notificación flotante minimalista */}
+      <ToastNotification toast={toast} onClose={() => setToast(null)} />
     </div>
   )
 }

@@ -3,6 +3,7 @@ import imageCompression from 'browser-image-compression'
 import type { ImageData } from '../../types'
 import { useTheme } from '../../context/ThemeContext'
 import { useAuthContext } from '../../context/AuthContext'
+import { ToastNotification } from '../ui/ToastNotification'
 
 interface Props {
   isOpen: boolean
@@ -74,7 +75,7 @@ export function ImageModal({
   const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [downloading, setDownloading] = useState(false)
-  const [downloadToast, setDownloadToast] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: 'loading' | 'success' | 'info' | 'error' } | null>(null)
   const [showDownloadMenu, setShowDownloadMenu] = useState(false)
   const downloadMenuRef = useRef<HTMLDivElement>(null)
 
@@ -108,11 +109,12 @@ export function ImageModal({
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '')
 
-      setDownloadToast(
-        targetMode === 'mobile'
+      setToast({
+        message: targetMode === 'mobile'
           ? 'Preparando foto para celular (~2 MB · Ultra HD)...'
-          : 'Descargando archivo original en máxima calidad...'
-      )
+          : 'Descargando archivo original en máxima calidad...',
+        type: 'loading',
+      })
 
       try {
         const res = await fetch(currentImage.src)
@@ -150,8 +152,8 @@ export function ImageModal({
         a.click()
 
         const finalMB = (finalBlob.size / (1024 * 1024)).toFixed(1)
-        setDownloadToast(`¡Descarga lista! (${finalMB} MB)`)
-        setTimeout(() => setDownloadToast(null), 3500)
+        setToast({ message: `¡Descarga lista! (${finalMB} MB)`, type: 'success' })
+        setTimeout(() => setToast(null), 3500)
 
         // Limpieza diferida para compatibilidad con iOS Safari y Chrome Mobile
         setTimeout(() => {
@@ -167,8 +169,8 @@ export function ImageModal({
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)
-        setDownloadToast('Iniciando descarga...')
-        setTimeout(() => setDownloadToast(null), 2500)
+        setToast({ message: 'Iniciando descarga...', type: 'info' })
+        setTimeout(() => setToast(null), 2500)
       } finally {
         setDownloading(false)
       }
@@ -477,16 +479,7 @@ export function ImageModal({
         onTouchEnd={handleTouchEnd}
       >
         {/* Notificación flotante de estado de descarga */}
-        {downloadToast && (
-          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-black/85 text-white text-xs font-medium shadow-2xl backdrop-blur-xl border border-white/20 flex items-center gap-2.5 animate-[fadeUp_0.2s_ease-out]">
-            {downloading ? (
-              <div className="w-3.5 h-3.5 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin shrink-0" />
-            ) : (
-              <i className="fas fa-check-circle text-emerald-400 shrink-0" />
-            )}
-            <span>{downloadToast}</span>
-          </div>
-        )}
+        <ToastNotification toast={toast} onClose={() => setToast(null)} />
 
         {/* Botón Anterior Flotante */}
         <button

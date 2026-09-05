@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useCategories } from '../../hooks/useCategories'
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
+import { ToastNotification } from '../../components/ui/ToastNotification'
 import type { Category } from '../../types'
 
 export function CategoriesPage() {
@@ -20,26 +22,28 @@ export function CategoriesPage() {
   const [quickSubName, setQuickSubName] = useState('')
 
   const [submitting, setSubmitting] = useState(false)
-  const [feedback, setFeedback] = useState<{ type: 'ok' | 'err'; msg: string } | null>(null)
+  const [categoryToDelete, setCategoryToDelete] = useState<{ category: Category; message: string } | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' | 'loading' } | null>(null)
 
   // Categorías principales (sin padre)
   const parentCategories = categories.filter((c) => !c.parent_id)
 
-  const showFeedback = (type: 'ok' | 'err', msg: string) => {
-    setFeedback({ type, msg })
-    setTimeout(() => setFeedback(null), 3500)
+  const showToast = (message: string, type: 'success' | 'info' | 'error') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3500)
   }
 
   // Crear categoría principal o subcategoría desde el formulario superior
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newName.trim()) {
-      showFeedback('err', 'Por favor escribe el nombre de la categoría.')
+      showToast('Por favor escribe el nombre de la categoría.', 'error')
       return
     }
 
     if (createMode === 'sub' && !selectedParentId) {
-      showFeedback('err', 'Por favor selecciona a cuál categoría principal pertenece esta subcategoría.')
+      showToast('Por favor selecciona a cuál categoría principal pertenece esta subcategoría.', 'error')
       return
     }
 
@@ -48,9 +52,9 @@ export function CategoriesPage() {
     const { error } = await createCategory(newName.trim(), parentId)
 
     if (error) {
-      showFeedback('err', `Error al crear: ${(error as { message?: string })?.message ?? 'desconocido'}`)
+      showToast(`Error al crear: ${(error as { message?: string })?.message ?? 'desconocido'}`, 'error')
     } else {
-      showFeedback('ok', createMode === 'sub' ? '¡Subcategoría creada con éxito!' : '¡Categoría principal creada con éxito!')
+      showToast(createMode === 'sub' ? '¡Subcategoría creada con éxito!' : '¡Categoría principal creada con éxito!', 'success')
       setNewName('')
     }
     setSubmitting(false)
@@ -62,9 +66,9 @@ export function CategoriesPage() {
     setSubmitting(true)
     const { error } = await createCategory(quickSubName.trim(), parentId)
     if (error) {
-      showFeedback('err', `Error al crear subcategoría: ${(error as { message?: string })?.message ?? 'desconocido'}`)
+      showToast(`Error al crear subcategoría: ${(error as { message?: string })?.message ?? 'desconocido'}`, 'error')
     } else {
-      showFeedback('ok', '¡Subcategoría agregada con éxito!')
+      showToast('¡Subcategoría agregada con éxito!', 'success')
       setQuickSubParentId(null)
       setQuickSubName('')
     }
@@ -82,25 +86,35 @@ export function CategoriesPage() {
     setSubmitting(true)
     const { error } = await updateCategory(id, editName.trim(), editParentId)
     if (error) {
-      showFeedback('err', `Error al actualizar: ${(error as { message?: string })?.message ?? 'desconocido'}`)
+      showToast(`Error al actualizar: ${(error as { message?: string })?.message ?? 'desconocido'}`, 'error')
     } else {
-      showFeedback('ok', 'Categoría actualizada correctamente.')
+      showToast('Categoría actualizada correctamente', 'success')
       setEditingId(null)
     }
     setSubmitting(false)
   }
 
-  const handleDelete = async (cat: Category) => {
+  const handleDeleteClick = (cat: Category) => {
     const isParent = !cat.parent_id
     const childCount = categories.filter((c) => c.parent_id === cat.id).length
     const promptMsg = isParent && childCount > 0
-      ? `¿Eliminar "${cat.name}"? Esta categoría tiene ${childCount} subcategoría(s) asociada(s).`
-      : `¿Eliminar "${cat.name}"? Las fotos asociadas quedarán sin categoría.`
+      ? `Esta categoría contiene ${childCount} subcategoría(s) asociada(s). Si la eliminas, sus subcategorías y fotos quedarán desvinculadas.`
+      : `Las fotos asociadas a esta categoría quedarán sin categoría asignada.`
 
-    if (!confirm(promptMsg)) return
-    const { error } = await deleteCategory(cat.id)
-    if (error) showFeedback('err', `Error al eliminar: ${(error as { message?: string })?.message ?? 'desconocido'}`)
-    else showFeedback('ok', 'Categoría eliminada.')
+    setCategoryToDelete({ category: cat, message: promptMsg })
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!categoryToDelete) return
+    setDeletingId(categoryToDelete.category.id)
+    const { error } = await deleteCategory(categoryToDelete.category.id)
+    if (error) {
+      showToast(`Error al eliminar: ${(error as { message?: string })?.message ?? 'desconocido'}`, 'error')
+    } else {
+      showToast(`Categoría "${categoryToDelete.category.name}" eliminada`, 'success')
+    }
+    setCategoryToDelete(null)
+    setDeletingId(null)
   }
 
   return (
@@ -114,20 +128,6 @@ export function CategoriesPage() {
           Organiza tu portafolio fotográfico en categorías principales y sus respectivas especialidades.
         </p>
       </div>
-
-      {/* Feedback Alert */}
-      {feedback && (
-        <div
-          className={`px-4 py-3 rounded-xl text-xs sm:text-sm border transition-all flex items-center gap-2 ${
-            feedback.type === 'ok'
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-medium'
-              : 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400 font-medium'
-          }`}
-        >
-          <i className={`fas ${feedback.type === 'ok' ? 'fa-check-circle' : 'fa-circle-exclamation'}`} />
-          <span>{feedback.msg}</span>
-        </div>
-      )}
 
       {/* ── PANEL DE CREACIÓN CON PESTAÑAS CLARAS ── */}
       <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 sm:p-6 shadow-sm">
@@ -330,7 +330,7 @@ export function CategoriesPage() {
                             <i className="fas fa-pen" />
                           </button>
                           <button
-                            onClick={() => handleDelete(parent)}
+                            onClick={() => handleDeleteClick(parent)}
                             className="w-8 h-8 rounded-xl border border-[var(--border-color)] text-[var(--text-muted)] hover:text-red-500 hover:border-red-500/40 flex items-center justify-center text-xs transition-colors cursor-pointer"
                             title="Eliminar categoría principal"
                           >
@@ -460,7 +460,7 @@ export function CategoriesPage() {
                                       <i className="fas fa-pen text-[10px]" />
                                     </button>
                                     <button
-                                      onClick={() => handleDelete(sub)}
+                                      onClick={() => handleDeleteClick(sub)}
                                       className="w-7 h-7 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-red-500 hover:border-red-500/40 flex items-center justify-center text-xs transition-colors cursor-pointer"
                                       title="Eliminar subcategoría"
                                     >
@@ -481,7 +481,25 @@ export function CategoriesPage() {
           </div>
         )}
       </div>
+
+      {/* Diálogo de confirmación para eliminar categoría */}
+      <ConfirmDialog
+        isOpen={Boolean(categoryToDelete)}
+        title={categoryToDelete?.category.parent_id ? '¿Eliminar subcategoría?' : '¿Eliminar categoría principal?'}
+        message={categoryToDelete?.message || '¿Estás seguro de eliminar esta categoría?'}
+        itemName={categoryToDelete?.category.name}
+        confirmText="Eliminar categoría"
+        cancelText="Cancelar"
+        isDanger={true}
+        loading={Boolean(deletingId)}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          if (!deletingId) setCategoryToDelete(null)
+        }}
+      />
+
+      {/* Toast Notification Minimalista */}
+      <ToastNotification toast={toast} onClose={() => setToast(null)} />
     </div>
   )
 }
-
