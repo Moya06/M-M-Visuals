@@ -32,16 +32,28 @@ export function Hero() {
       {/* Capas de iluminación translúcidas que permiten apreciar la foto con total nitidez */}
       {theme === 'dark' ? (
         <>
-          {/* En modo oscuro: suave viñeta y transición sutil solo en el borde inferior */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent" />
+          {/* En modo oscuro: suave viñeta y transición progresiva en el tercio inferior */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.45)_100%)] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-24 bg-gradient-to-t from-[var(--bg-primary)] to-transparent pointer-events-none" />
+          <div
+            className="absolute bottom-0 left-0 right-0 h-64 sm:h-80 md:h-[340px] pointer-events-none"
+            style={{
+              background:
+                'linear-gradient(to top, var(--bg-primary) 0%, color-mix(in srgb, var(--bg-primary) 65%, transparent) 32%, color-mix(in srgb, var(--bg-primary) 20%, transparent) 68%, transparent 100%)',
+            }}
+          />
         </>
       ) : (
         <>
-          {/* En modo claro: sin velo blanco en la mitad inferior, solo un toque superior y transición mínima en el borde inferior */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[rgba(247,244,237,0.3)] via-transparent to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 h-14 sm:h-20 bg-gradient-to-t from-[var(--bg-primary)] to-transparent pointer-events-none" />
+          {/* En modo claro: difuminado suave y progresivo (punto medio) que se desvanece poco a poco sin tapar la mitad de la foto */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[rgba(247,244,237,0.3)] via-transparent to-transparent pointer-events-none" />
+          <div
+            className="absolute bottom-0 left-0 right-0 h-64 sm:h-80 md:h-[340px] pointer-events-none"
+            style={{
+              background:
+                'linear-gradient(to top, var(--bg-primary) 0%, color-mix(in srgb, var(--bg-primary) 65%, transparent) 30%, color-mix(in srgb, var(--bg-primary) 20%, transparent) 65%, transparent 100%)',
+            }}
+          />
         </>
       )}
 
