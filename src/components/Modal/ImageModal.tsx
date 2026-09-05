@@ -430,71 +430,77 @@ export function ImageModal({
           {/* Descarga inteligente exclusiva para cuenta iniciada (Admin) */}
           {isAuthenticated && (
             <div className="relative" ref={downloadMenuRef}>
-              <div className="flex items-center">
-                <button
-                  onClick={() => executeDownload('auto')}
-                  disabled={downloading}
-                  aria-label="Descargar foto"
-                  title="Descargar foto (Auto: ~2 MB en cel / Original en PC) · Atajo: D"
-                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer disabled:opacity-50 ${isLight
-                    ? 'bg-emerald-500/15 hover:bg-emerald-500 text-emerald-700 hover:text-white'
-                    : 'bg-emerald-500/25 hover:bg-emerald-500 text-emerald-300 hover:text-white'
-                    }`}
-                >
-                  {downloading ? (
-                    <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <i className="fas fa-download text-xs" />
-                  )}
-                </button>
-                <button
-                  onClick={() => setShowDownloadMenu((v) => !v)}
-                  disabled={downloading}
-                  aria-label="Opciones de calidad de descarga"
-                  title="Elegir calidad (Móvil ~2MB / Original)"
-                  className={`w-4 h-8 sm:h-9 -ml-0.5 flex items-center justify-center transition-all cursor-pointer opacity-70 hover:opacity-100 text-[9px] ${isLight ? 'text-[#25201b]' : 'text-white'
-                    }`}
-                >
-                  <i className="fas fa-caret-down" />
-                </button>
-              </div>
+              <button
+                onClick={() => setShowDownloadMenu((v) => !v)}
+                disabled={downloading}
+                aria-label="Descargar foto"
+                title="Descargar foto (Elegir: Celular ~2 MB o Calidad Original)"
+                className={`px-2.5 h-8 sm:h-9 rounded-full flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 ${isLight
+                  ? 'bg-emerald-500/15 hover:bg-emerald-500 text-emerald-700 hover:text-white'
+                  : 'bg-emerald-500/25 hover:bg-emerald-500 text-emerald-300 hover:text-white'
+                  }`}
+              >
+                {downloading ? (
+                  <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <i className="fas fa-download text-xs" />
+                )}
+                <span className="text-[11px] font-semibold hidden min-[480px]:inline">Descargar</span>
+                <i className={`fas fa-caret-down text-[10px] transition-transform ${showDownloadMenu ? 'rotate-180' : ''}`} />
+              </button>
 
               {/* Menú flotante de calidad */}
               {showDownloadMenu && (
                 <div
-                  className={`absolute right-0 mt-2 w-64 rounded-2xl p-2 z-50 backdrop-blur-2xl shadow-2xl border animate-[fadeUp_0.15s_ease-out] ${isLight
+                  className={`absolute right-0 mt-2 w-72 rounded-2xl p-2.5 z-50 backdrop-blur-2xl shadow-2xl border animate-[fadeUp_0.15s_ease-out] ${isLight
                     ? 'bg-white/95 border-[var(--border-color)] text-[#25201b]'
                     : 'bg-[#141414]/95 border-white/15 text-white'
                     }`}
                 >
-                  <div className="px-3 py-1.5 border-b border-black/5 dark:border-white/10 mb-1">
+                  <div className="px-3 py-1.5 border-b border-black/5 dark:border-white/10 mb-1.5 flex items-center justify-between">
                     <span className="text-[10px] tracking-[1.5px] uppercase font-bold text-[var(--accent)]">
-                      Calidad de descarga
+                      Opciones de descarga
                     </span>
+                    <button
+                      onClick={() => setShowDownloadMenu(false)}
+                      className="text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] cursor-pointer"
+                    >
+                      <i className="fas fa-xmark" />
+                    </button>
                   </div>
                   <button
                     onClick={() => executeDownload('mobile')}
-                    className={`w-full text-left px-3 py-2.5 rounded-xl text-xs transition-colors flex items-center gap-2.5 cursor-pointer ${isLight ? 'hover:bg-black/5' : 'hover:bg-white/10'
+                    className={`w-full text-left p-2.5 rounded-xl transition-colors flex items-center gap-3 cursor-pointer ${isLight ? 'hover:bg-black/5' : 'hover:bg-white/10'
                       }`}
                   >
-                    <i className="fas fa-mobile-screen-button text-base text-[var(--accent)]" />
-                    <div>
-                      <p className="font-semibold text-xs">Versión Móvil (~2 MB)</p>
-                      <p className={`text-[10px] ${isLight ? 'text-[#746b62]' : 'text-white/60'}`}>
-                        3200px Ultra HD, ideal para celular y WhatsApp
+                    <div className="w-8 h-8 rounded-lg bg-[var(--accent)]/15 text-[var(--accent)] flex items-center justify-center shrink-0">
+                      <i className="fas fa-mobile-screen text-sm" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-bold text-xs">Para Celular (~2 MB)</p>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-500 font-semibold uppercase">Recomendada</span>
+                      </div>
+                      <p className={`text-[10px] mt-0.5 leading-snug ${isLight ? 'text-[#746b62]' : 'text-white/60'}`}>
+                        Ultra HD optimizada para WhatsApp y teléfono
                       </p>
                     </div>
                   </button>
                   <button
                     onClick={() => executeDownload('original')}
-                    className={`w-full text-left px-3 py-2.5 rounded-xl text-xs transition-colors flex items-center gap-2.5 cursor-pointer ${isLight ? 'hover:bg-black/5' : 'hover:bg-white/10'
+                    className={`w-full text-left p-2.5 rounded-xl transition-colors flex items-center gap-3 cursor-pointer ${isLight ? 'hover:bg-black/5' : 'hover:bg-white/10'
                       }`}
                   >
-                    <i className="fas fa-camera text-base text-emerald-500" />
-                    <div>
-                      <p className="font-semibold text-xs">Calidad Original Completa</p>
-                      <p className={`text-[10px] ${isLight ? 'text-[#746b62]' : 'text-white/60'}`}>
-                        Archivo de cámara en máxima resolución
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-500 flex items-center justify-center shrink-0">
+                      <i className="fas fa-camera text-sm" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-bold text-xs">Calidad Original Completa</p>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--accent)]/15 text-[var(--accent)] font-semibold uppercase">Máx</span>
+                      </div>
+                      <p className={`text-[10px] mt-0.5 leading-snug ${isLight ? 'text-[#746b62]' : 'text-white/60'}`}>
+                        Archivo nativo de cámara sin compresión
                       </p>
                     </div>
                   </button>

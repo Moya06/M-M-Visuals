@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import imageCompression from 'browser-image-compression'
 import { usePhotos } from '../../hooks/usePhotos'
 import { useCategories } from '../../hooks/useCategories'
 import { UploadForm } from './UploadForm'
@@ -11,33 +12,69 @@ export function PhotosPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const [downloadMenuPhotoId, setDownloadMenuPhotoId] = useState<string | null>(null)
+
+  // Cerrar menú de descarga al hacer click fuera
+  useEffect(() => {
+    function handleClickOutside() {
+      setDownloadMenuPhotoId(null)
+    }
+    if (downloadMenuPhotoId) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [downloadMenuPhotoId])
 
   const handleSuccess = (photo: Photo) => {
     setPhotos((prev) => [photo, ...prev])
     setShowForm(false)
   }
 
-  const handleDownload = async (photo: Photo, e?: React.MouseEvent) => {
+  const handleDownload = async (photo: Photo, mode: 'original' | 'mobile' = 'original', e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
     if (downloadingId) return
     setDownloadingId(photo.id)
+    setDownloadMenuPhotoId(null)
 
     try {
       const res = await fetch(photo.url)
-      const blob = await res.blob()
-      const blobUrl = URL.createObjectURL(blob)
+      const rawBlob = await res.blob()
+
+      let finalBlob: Blob = rawBlob
+
+      // Modo móvil: si la foto pesa más de 2.0 MB, se optimiza a ~2.0 MB en 3200px
+      if (mode === 'mobile' && rawBlob.size > 2.0 * 1024 * 1024) {
+        try {
+          const tempFile = new File([rawBlob], 'image.jpg', {
+            type: rawBlob.type || 'image/jpeg',
+          })
+          finalBlob = await imageCompression(tempFile, {
+            maxSizeMB: 2.0,
+            maxWidthOrHeight: 3200,
+            initialQuality: 0.93,
+            useWebWorker: true,
+            fileType: 'image/jpeg',
+          })
+        } catch (err) {
+          console.warn('Fallback a foto original:', err)
+          finalBlob = rawBlob
+        }
+      }
+
+      const blobUrl = URL.createObjectURL(finalBlob)
 
       let ext = 'jpg'
-      if (blob.type === 'image/png' || photo.url.toLowerCase().includes('.png')) ext = 'png'
-      else if (blob.type === 'image/webp' || photo.url.toLowerCase().includes('.webp')) ext = 'webp'
-      else if (blob.type === 'image/jpeg' || photo.url.toLowerCase().includes('.jpeg') || photo.url.toLowerCase().includes('.jpg')) ext = 'jpg'
+      if (finalBlob.type === 'image/png' || (mode === 'original' && photo.url.toLowerCase().includes('.png'))) ext = 'png'
+      else if (finalBlob.type === 'image/webp' || (mode === 'original' && photo.url.toLowerCase().includes('.webp'))) ext = 'webp'
+      else ext = 'jpg'
 
       const rawName = photo.title?.trim() || 'foto-mm-visuals'
       const cleanName = rawName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'foto'
+      const suffix = mode === 'mobile' ? '-celular-2mb' : '-original'
 
       const a = document.createElement('a')
       a.href = blobUrl
-      a.download = `${cleanName}.${ext}`
+      a.download = `${cleanName}${suffix}.${ext}`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -144,22 +181,62 @@ export function PhotosPage() {
                 </div>
 
                 {/* Barra de botones de acción 100% visible en móvil y responsive */}
-                <div className="flex items-center gap-1.5 pt-2 border-t border-[var(--border-color)]">
-                  {/* Botón Descargar */}
-                  <button
-                    type="button"
-                    onClick={(e) => handleDownload(photo, e)}
-                    disabled={downloadingId === photo.id}
-                    className="flex-1 py-1.5 px-2 bg-emerald-500/15 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
-                    title="Descargar archivo en máxima calidad"
-                  >
-                    {downloadingId === photo.id ? (
-                      <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <i className="fas fa-download text-[11px]" />
+                <div className="flex items-center gap-1.5 pt-2 border-t border-[var(--border-color)] relative">
+                  {/* Botón Descargar con opciones */}
+                  <div className="flex-1 relative">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setDownloadMenuPhotoId(downloadMenuPhotoId === photo.id ? null : photo.id)
+                      }}
+                      disabled={downloadingId === photo.id}
+                      className="w-full py-1.5 px-2 bg-emerald-500/15 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
+                      title="Opciones de descarga"
+                    >
+                      {downloadingId === photo.id ? (
+                        <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <i className="fas fa-download text-[11px]" />
+                      )}
+                      <span>Descargar</span>
+                      <i className="fas fa-caret-down text-[9px] ml-0.5 opacity-70" />
+                    </button>
+
+                    {/* Popover de descarga en tarjeta */}
+                    {downloadMenuPhotoId === photo.id && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute bottom-full left-0 mb-1.5 w-52 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-xl p-1.5 z-30 animate-[fadeUp_0.15s_ease-out]"
+                      >
+                        <div className="px-2 py-1 text-[10px] uppercase tracking-wider text-[var(--accent)] font-bold border-b border-[var(--border-color)]/60 mb-1">
+                          Descargar foto
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => handleDownload(photo, 'mobile', e)}
+                          className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-[var(--bg-primary)] flex items-center gap-2 cursor-pointer text-[var(--text-main)] transition-colors"
+                        >
+                          <i className="fas fa-mobile-screen text-[var(--accent)] text-xs" />
+                          <div className="min-w-0">
+                            <p className="font-semibold text-[11px] leading-none">Para Celular (~2 MB)</p>
+                            <span className="text-[9px] text-[var(--text-muted)]">Optimizada Ultra HD</span>
+                          </div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleDownload(photo, 'original', e)}
+                          className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-[var(--bg-primary)] flex items-center gap-2 cursor-pointer text-[var(--text-main)] transition-colors"
+                        >
+                          <i className="fas fa-camera text-emerald-500 text-xs" />
+                          <div className="min-w-0">
+                            <p className="font-semibold text-[11px] leading-none">Calidad Original</p>
+                            <span className="text-[9px] text-[var(--text-muted)]">Archivo completo</span>
+                          </div>
+                        </button>
+                      </div>
                     )}
-                    <span>{downloadingId === photo.id ? 'Descargando…' : 'Descargar'}</span>
-                  </button>
+                  </div>
 
                   {/* Botón Datos */}
                   <button
@@ -284,22 +361,66 @@ export function PhotosPage() {
               </div>
             </div>
 
-            {/* Acciones del Modal */}
-            <div className="flex flex-col sm:flex-row items-center gap-2 pt-3 border-t border-[var(--border-color)]">
-              <button
-                type="button"
-                onClick={() => handleDownload(selectedPhoto)}
-                disabled={downloadingId === selectedPhoto.id}
-                className="w-full sm:flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm disabled:opacity-50"
-              >
-                {downloadingId === selectedPhoto.id ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <i className="fas fa-download" />
-                )}
-                <span>{downloadingId === selectedPhoto.id ? 'Descargando archivo…' : 'Descargar en alta calidad'}</span>
-              </button>
+            {/* Opciones de Descarga dentro del Modal de Datos */}
+            <div className="space-y-2 pt-3 border-t border-[var(--border-color)]">
+              <span className="block text-[11px] uppercase tracking-[1.5px] text-[var(--accent)] font-bold">
+                Opciones de Descarga
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* Opción Celular 2MB */}
+                <button
+                  type="button"
+                  onClick={() => handleDownload(selectedPhoto, 'mobile')}
+                  disabled={downloadingId === selectedPhoto.id}
+                  className="p-3 bg-[var(--bg-primary)] border border-[var(--border-color)] hover:border-[var(--accent)] rounded-xl text-left transition-all cursor-pointer flex items-center gap-3 group disabled:opacity-50"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-[var(--accent)]/15 text-[var(--accent)] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    {downloadingId === selectedPhoto.id ? (
+                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <i className="fas fa-mobile-screen text-base" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-[var(--text-main)]">Para Celular (~2 MB)</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-500 font-semibold uppercase">Recomendada</span>
+                    </div>
+                    <p className="text-[10px] text-[var(--text-muted)] mt-0.5 leading-snug">
+                      Ultra HD adaptada para WhatsApp y celular
+                    </p>
+                  </div>
+                </button>
 
+                {/* Opción Calidad Original */}
+                <button
+                  type="button"
+                  onClick={() => handleDownload(selectedPhoto, 'original')}
+                  disabled={downloadingId === selectedPhoto.id}
+                  className="p-3 bg-[var(--bg-primary)] border border-[var(--border-color)] hover:border-emerald-500 rounded-xl text-left transition-all cursor-pointer flex items-center gap-3 group disabled:opacity-50"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-emerald-500/15 text-emerald-500 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    {downloadingId === selectedPhoto.id ? (
+                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <i className="fas fa-camera text-base" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-[var(--text-main)]">Calidad Original Completa</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--accent)]/15 text-[var(--accent)] font-semibold uppercase">Máx</span>
+                    </div>
+                    <p className="text-[10px] text-[var(--text-muted)] mt-0.5 leading-snug">
+                      Archivo de cámara sin compresión
+                    </p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Botón Eliminar en el Modal */}
+            <div className="pt-2 border-t border-[var(--border-color)] flex justify-end">
               <button
                 type="button"
                 onClick={() => handleDelete(selectedPhoto)}
@@ -311,7 +432,7 @@ export function PhotosPage() {
                 ) : (
                   <>
                     <i className="fas fa-trash" />
-                    <span>Eliminar</span>
+                    <span>Eliminar fotografía</span>
                   </>
                 )}
               </button>
