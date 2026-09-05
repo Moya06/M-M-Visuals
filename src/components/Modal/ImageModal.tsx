@@ -337,7 +337,7 @@ export function ImageModal({
         </div>
 
         {/* Lado derecho: Barra de herramientas en píldora de cristal */}
-        <div className={`flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full backdrop-blur-xl transition-colors ${isLight
+        <div className={`flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full backdrop-blur-xl transition-colors max-w-full overflow-x-auto ${isLight
           ? 'bg-black/[0.05] border border-black/10 shadow-[0_8px_25px_rgba(0,0,0,0.06)]'
           : 'bg-white/[0.08] border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)]'
           }`}>
@@ -347,7 +347,7 @@ export function ImageModal({
             disabled={scale <= 1}
             aria-label="Reducir zoom"
             title="Reducir (-) [Zoom]"
-            className={`w-9 h-9 rounded-full flex items-center justify-center transition-all disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer ${isLight
+            className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer ${isLight
               ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
               : 'text-white/80 hover:text-white hover:bg-white/15'
               }`}
@@ -360,7 +360,7 @@ export function ImageModal({
             onClick={onResetZoom}
             aria-label="Restablecer zoom"
             title="Doble clic o clic aquí para restablecer"
-            className={`px-2.5 h-7 rounded-full text-[11px] font-semibold tracking-wider flex items-center justify-center hover:bg-[var(--accent)] hover:text-black transition-all cursor-pointer ${isLight
+            className={`px-2 sm:px-2.5 h-6 sm:h-7 rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wider flex items-center justify-center hover:bg-[var(--accent)] hover:text-black transition-all cursor-pointer ${isLight
               ? 'bg-black/10 text-[#25201b]'
               : 'bg-white/10 text-white'
               }`}
@@ -374,7 +374,7 @@ export function ImageModal({
             disabled={scale >= 5}
             aria-label="Aumentar zoom"
             title="Aumentar (+) [Zoom]"
-            className={`w-9 h-9 rounded-full flex items-center justify-center transition-all disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer ${isLight
+            className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer ${isLight
               ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
               : 'text-white/80 hover:text-white hover:bg-white/15'
               }`}
@@ -389,7 +389,7 @@ export function ImageModal({
             onClick={onToggleThumbnails}
             aria-label="Mostrar/ocultar miniaturas"
             title="Miniaturas (T)"
-            className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${showThumbnails
+            className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${showThumbnails
               ? 'bg-[var(--accent)]/25 text-[var(--accent)]'
               : isLight
                 ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
@@ -399,29 +399,27 @@ export function ImageModal({
             <i className="fas fa-table-cells text-xs" />
           </button>
 
-          {/* Info toggle */}
-          {currentImage.description && (
-            <button
-              onClick={onToggleInfo}
-              aria-label="Ver detalles"
-              title="Información de la obra (I)"
-              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${showInfo
-                ? 'bg-[var(--accent)]/25 text-[var(--accent)]'
-                : isLight
-                  ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
-                  : 'text-white/80 hover:text-white hover:bg-white/15'
-                }`}
-            >
-              <i className="fas fa-circle-info text-xs" />
-            </button>
-          )}
+          {/* Info toggle (Datos) */}
+          <button
+            onClick={onToggleInfo}
+            aria-label="Ver datos y detalles"
+            title="Datos y detalles de la foto (I)"
+            className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${showInfo
+              ? 'bg-[var(--accent)]/25 text-[var(--accent)]'
+              : isLight
+                ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
+                : 'text-white/80 hover:text-white hover:bg-white/15'
+              }`}
+          >
+            <i className="fas fa-circle-info text-xs" />
+          </button>
 
           {/* Pantalla completa */}
           <button
             onClick={onToggleFullscreen}
             aria-label="Pantalla completa"
             title="Pantalla completa (F)"
-            className={`w-9 h-9 rounded-full hidden sm:flex items-center justify-center transition-all cursor-pointer ${isLight
+            className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full hidden sm:flex items-center justify-center transition-all cursor-pointer ${isLight
               ? 'text-[#25201b]/80 hover:text-[#25201b] hover:bg-black/10'
               : 'text-white/80 hover:text-white hover:bg-white/15'
               }`}
@@ -438,7 +436,7 @@ export function ImageModal({
                   disabled={downloading}
                   aria-label="Descargar foto"
                   title="Descargar foto (Auto: ~2 MB en cel / Original en PC) · Atajo: D"
-                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer disabled:opacity-50 ${isLight
+                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer disabled:opacity-50 ${isLight
                     ? 'bg-emerald-500/15 hover:bg-emerald-500 text-emerald-700 hover:text-white'
                     : 'bg-emerald-500/25 hover:bg-emerald-500 text-emerald-300 hover:text-white'
                     }`}
@@ -446,7 +444,7 @@ export function ImageModal({
                   {downloading ? (
                     <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <i className="fas fa-arrow-down-to-bracket text-xs" />
+                    <i className="fas fa-download text-xs" />
                   )}
                 </button>
                 <button
@@ -454,7 +452,7 @@ export function ImageModal({
                   disabled={downloading}
                   aria-label="Opciones de calidad de descarga"
                   title="Elegir calidad (Móvil ~2MB / Original)"
-                  className={`w-4 h-9 -ml-0.5 flex items-center justify-center transition-all cursor-pointer opacity-70 hover:opacity-100 text-[9px] ${isLight ? 'text-[#25201b]' : 'text-white'
+                  className={`w-4 h-8 sm:h-9 -ml-0.5 flex items-center justify-center transition-all cursor-pointer opacity-70 hover:opacity-100 text-[9px] ${isLight ? 'text-[#25201b]' : 'text-white'
                     }`}
                 >
                   <i className="fas fa-caret-down" />
@@ -605,7 +603,7 @@ export function ImageModal({
           />
 
           {/* Panel Flotante de Información / Narrativa */}
-          {showInfo && currentImage.description && (
+          {showInfo && (
             <div
               onClick={(e) => e.stopPropagation()}
               className={`absolute bottom-2 left-2 right-2 md:bottom-6 md:left-auto md:right-6 w-auto md:max-w-sm z-50 p-4 shrink-0 rounded-2xl backdrop-blur-3xl shadow-[0_10px_40px_rgba(0,0,0,0.4)] animate-[fadeUp_0.2s_ease-out] ${isLight
@@ -615,7 +613,7 @@ export function ImageModal({
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] tracking-[2px] uppercase text-[var(--accent)] font-semibold">
-                  Detalles de la Toma
+                  Detalles de la Fotografía
                 </span>
                 <button
                   onClick={onToggleInfo}
@@ -628,15 +626,22 @@ export function ImageModal({
               <h4 className="font-serif text-sm md:text-base font-bold mb-1.5">{displayTitle}</h4>
               <p className={`text-[11px] md:text-xs leading-relaxed mb-3 ${isLight ? 'text-[#746b62]' : 'text-white/80'
                 }`}>
-                {currentImage.description}
+                {currentImage.description?.trim() || 'Fotografía profesional en alta resolución de M&M Visuals.'}
               </p>
-              {currentImage.categoryName && (
-                <div className={`text-[10px] md:text-[11px] flex items-center gap-1.5 border-t pt-2.5 ${isLight ? 'text-[#746b62] border-black/10' : 'text-white/50 border-white/10'
-                  }`}>
-                  <i className="fas fa-tag text-[var(--accent)] text-[10px]" />
-                  <span>Categoría: {currentImage.categoryName}</span>
-                </div>
-              )}
+              <div className={`text-[10px] md:text-[11px] flex flex-col gap-1.5 border-t pt-2.5 ${isLight ? 'text-[#746b62] border-black/10' : 'text-white/50 border-white/10'}`}>
+                {currentImage.categoryName && (
+                  <div className="flex items-center gap-1.5">
+                    <i className="fas fa-tag text-[var(--accent)] text-[10px]" />
+                    <span>Categoría: <strong>{currentImage.categoryName}</strong></span>
+                  </div>
+                )}
+                {currentImage.width && currentImage.height && (
+                  <div className="flex items-center gap-1.5">
+                    <i className="fas fa-expand text-[var(--accent)] text-[10px]" />
+                    <span>Resolución: {currentImage.width} × {currentImage.height} px</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
