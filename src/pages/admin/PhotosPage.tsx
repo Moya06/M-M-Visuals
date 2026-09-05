@@ -23,7 +23,6 @@ export function PhotosPage() {
     if (e) e.stopPropagation()
     if (downloadingId) return
     setDownloadingId(photo.id)
-    setDownloadMenuPhotoId(null)
 
     try {
       const res = await fetch(photo.url)
@@ -63,11 +62,15 @@ export function PhotosPage() {
 
       const a = document.createElement('a')
       a.href = blobUrl
+      a.target = '_self'
       a.download = `${cleanName}${suffix}.${ext}`
       document.body.appendChild(a)
       a.click()
-      document.body.removeChild(a)
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000)
+
+      setTimeout(() => {
+        if (document.body.contains(a)) document.body.removeChild(a)
+        URL.revokeObjectURL(blobUrl)
+      }, 12000)
     } catch (err) {
       console.warn('Fallback a descarga directa:', err)
       const a = document.createElement('a')
