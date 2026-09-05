@@ -1,22 +1,14 @@
-import { useTheme } from '../context/ThemeContext'
+import { Logo } from './Logo'
 
 export function Footer() {
-  const { theme } = useTheme()
-
   return (
     <footer className="py-16 pb-[30px] border-t border-[var(--border-color)] bg-[var(--bg-primary)]">
       <div className="max-w-[1300px] mx-auto px-6">
         <div className="flex justify-between items-start mb-[40px] gap-10 flex-wrap">
           <div className="max-w-[360px]">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shrink-0">
-                <img
-                  src={theme === 'light' ? '/logo-circle-light.png' : '/logo-circle-dark.png'}
-                  alt="M&M Visuals"
-                  className={`w-full h-full object-contain ${
-                    theme === 'dark' ? 'logo-dark-mode' : 'logo-light-mode'
-                  }`}
-                />
+              <div className="w-24 h-24 md:w-28 md:h-28 flex items-center justify-center shrink-0">
+                <Logo className="w-full h-full" />
               </div>
               <div className="flex flex-col justify-center">
                 <span className="font-serif text-[24px] font-bold text-[var(--text-main)] leading-tight">

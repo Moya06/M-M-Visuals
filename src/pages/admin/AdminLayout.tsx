@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { NavLink, Outlet, useNavigate, Link } from 'react-router-dom'
 import { useAuthContext } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
+import { Logo } from '../../components/Logo'
 
 const navItems = [
   { to: '/admin/dashboard', icon: 'fa-gauge-high', label: 'Dashboard' },
@@ -32,15 +33,9 @@ export function AdminLayout() {
           >
             <i className="fas fa-bars text-sm" />
           </button>
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 flex items-center justify-center shrink-0">
-              <img
-                src={theme === 'light' ? '/logo-circle-light.png' : '/logo-circle-dark.png'}
-                alt="M&M Visuals"
-                className={`w-full h-full object-contain ${
-                  theme === 'dark' ? 'logo-dark-mode' : 'logo-light-mode'
-                }`}
-              />
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 flex items-center justify-center shrink-0">
+              <Logo className="w-full h-full" />
             </div>
             <div>
               <span className="font-serif text-sm font-bold text-[var(--text-main)] block leading-tight">M&M Visuals</span>
@@ -53,9 +48,19 @@ export function AdminLayout() {
           <button
             onClick={toggleTheme}
             aria-label="Cambiar tema"
-            className="w-8 h-8 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center cursor-pointer hover:border-[var(--accent)] transition-colors"
+            className="relative overflow-hidden w-8 h-8 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center cursor-pointer hover:border-[var(--accent)] transition-colors"
+            title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}
           >
-            {theme === 'light' ? <i className="fas fa-moon text-xs" /> : <i className="fas fa-sun text-xs text-[var(--accent)]" />}
+            <i
+              className={`fas fa-sun text-xs text-[var(--accent)] absolute transition-all duration-500 transform ${
+                theme === 'dark' ? 'rotate-0 scale-100 opacity-100' : 'rotate-90 scale-0 opacity-0'
+              }`}
+            />
+            <i
+              className={`fas fa-moon text-xs absolute transition-all duration-500 transform ${
+                theme === 'light' ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-0 opacity-0'
+              }`}
+            />
           </button>
           <Link
             to="/"
@@ -84,14 +89,8 @@ export function AdminLayout() {
         {/* Encabezado del sidebar */}
         <div className="px-6 py-5 border-b border-[var(--border-color)] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 flex items-center justify-center shrink-0">
-              <img
-                src={theme === 'light' ? '/logo-circle-light.png' : '/logo-circle-dark.png'}
-                alt="M&M Visuals"
-                className={`w-full h-full object-contain ${
-                  theme === 'dark' ? 'logo-dark-mode' : 'logo-light-mode'
-                }`}
-              />
+            <div className="w-16 h-16 flex items-center justify-center shrink-0">
+              <Logo className="w-full h-full" />
             </div>
             <div>
               <div className="font-serif text-[18px] font-bold text-[var(--text-main)] leading-tight">M&M Visuals</div>
@@ -103,10 +102,19 @@ export function AdminLayout() {
             <button
               onClick={toggleTheme}
               aria-label="Cambiar tema"
-              className="hidden md:flex w-8 h-8 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] items-center justify-center cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all"
+              className="hidden md:flex relative overflow-hidden w-8 h-8 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] items-center justify-center cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all"
               title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}
             >
-              {theme === 'light' ? <i className="fas fa-moon text-xs" /> : <i className="fas fa-sun text-xs text-[var(--accent)]" />}
+              <i
+                className={`fas fa-sun text-xs text-[var(--accent)] absolute transition-all duration-500 transform ${
+                  theme === 'dark' ? 'rotate-0 scale-100 opacity-100' : 'rotate-90 scale-0 opacity-0'
+                }`}
+              />
+              <i
+                className={`fas fa-moon text-xs absolute transition-all duration-500 transform ${
+                  theme === 'light' ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-0 opacity-0'
+                }`}
+              />
             </button>
             {/* Botón cerrar en móvil */}
             <button

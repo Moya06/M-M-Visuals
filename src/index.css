@@ -41,11 +41,24 @@ html.light .logo-light-mode {
   filter: contrast(1.08) drop-shadow(0 3px 10px rgba(142,108,56,0.18));
 }
 
+/* Transición cinematográfica al cambiar de modo */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              fill 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              stroke 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-delay: 0s !important;
+}
+
 html {
   scroll-behavior: smooth;
   background-color: var(--bg-primary);
   color: var(--text-main);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 html, body {

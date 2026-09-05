@@ -29,7 +29,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme])
 
   const toggleTheme = () => {
+    const root = document.documentElement
+    root.classList.add('theme-transition')
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+    window.setTimeout(() => {
+      root.classList.remove('theme-transition')
+    }, 650)
   }
 
   return (

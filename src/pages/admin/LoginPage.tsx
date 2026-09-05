@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthContext } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
+import { Logo } from '../../components/Logo'
 
 export function LoginPage() {
   const { session, signIn, loading } = useAuthContext()
@@ -33,25 +34,28 @@ export function LoginPage() {
       <button
         onClick={toggleTheme}
         aria-label="Cambiar tema"
-        className="absolute top-6 right-6 w-10 h-10 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all shadow-sm"
+        className="absolute top-6 right-6 relative overflow-hidden w-10 h-10 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all shadow-sm"
         title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}
       >
-        {theme === 'light' ? <i className="fas fa-moon text-sm" /> : <i className="fas fa-sun text-sm text-[var(--accent)]" />}
+        <i
+          className={`fas fa-sun text-sm text-[var(--accent)] absolute transition-all duration-500 transform ${
+            theme === 'dark' ? 'rotate-0 scale-100 opacity-100' : 'rotate-90 scale-0 opacity-0'
+          }`}
+        />
+        <i
+          className={`fas fa-moon text-sm absolute transition-all duration-500 transform ${
+            theme === 'light' ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-0 opacity-0'
+          }`}
+        />
       </button>
 
       <div className="w-full max-w-sm">
         {/* Logo M&M Visuals */}
         <div className="text-center mb-8 flex flex-col items-center">
-          <div className="w-36 h-36 flex items-center justify-center mb-4">
-            <img
-              src={theme === 'light' ? '/logo-circle-light.png' : '/logo-circle-dark.png'}
-              alt="M&M Visuals"
-              className={`w-full h-full object-contain ${
-                theme === 'dark' ? 'logo-dark-mode' : 'logo-light-mode'
-              }`}
-            />
+          <div className="w-44 h-44 flex items-center justify-center mb-4">
+            <Logo className="w-full h-full" />
           </div>
-          <div className="font-serif text-[30px] font-bold text-[var(--text-main)] tracking-[2px] leading-tight">M&M Visuals</div>
+          <div className="font-serif text-[32px] font-bold text-[var(--text-main)] tracking-[2px] leading-tight">M&M Visuals</div>
           <div className="text-[11px] tracking-[4px] uppercase text-[var(--accent)] font-semibold mt-1">Panel de Administración</div>
         </div>
 
