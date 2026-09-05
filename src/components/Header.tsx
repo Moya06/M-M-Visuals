@@ -20,8 +20,8 @@ export function Header() {
           ? 'bg-[rgba(247,244,237,0.95)] backdrop-blur-xl shadow-[0_2px_25px_rgba(0,0,0,0.06)] border-b border-[var(--border-color)]'
           : 'bg-[rgba(13,13,13,0.92)] backdrop-blur-xl shadow-[0_1px_30px_rgba(0,0,0,0.5)] border-b border-white/[0.05]'
         : theme === 'light'
-          ? 'bg-gradient-to-b from-[rgba(247,244,237,0.92)] via-[rgba(247,244,237,0.55)] to-transparent'
-          : 'bg-gradient-to-b from-black/85 via-black/40 to-transparent'
+          ? 'bg-gradient-to-b from-[rgba(247,244,237,0.55)] via-[rgba(247,244,237,0.15)] to-transparent'
+          : 'bg-gradient-to-b from-black/50 via-black/15 to-transparent'
         } ${hidden ? '-translate-y-full' : 'translate-y-0'}`}
     >
       <div className="max-w-[1300px] mx-auto px-6">
