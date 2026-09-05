@@ -10,10 +10,51 @@ export function PhotosPage() {
   const [showForm, setShowForm] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
 
   const handleSuccess = (photo: Photo) => {
     setPhotos((prev) => [photo, ...prev])
     setShowForm(false)
+  }
+
+  const handleDownload = async (photo: Photo, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
+    if (downloadingId) return
+    setDownloadingId(photo.id)
+
+    try {
+      const res = await fetch(photo.url)
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+
+      let ext = 'jpg'
+      if (blob.type === 'image/png' || photo.url.toLowerCase().includes('.png')) ext = 'png'
+      else if (blob.type === 'image/webp' || photo.url.toLowerCase().includes('.webp')) ext = 'webp'
+      else if (blob.type === 'image/jpeg' || photo.url.toLowerCase().includes('.jpeg') || photo.url.toLowerCase().includes('.jpg')) ext = 'jpg'
+
+      const rawName = photo.title?.trim() || 'foto-mm-visuals'
+      const cleanName = rawName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'foto'
+
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = `${cleanName}.${ext}`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000)
+    } catch (err) {
+      console.warn('Fallback a descarga directa:', err)
+      const a = document.createElement('a')
+      a.href = photo.url
+      a.target = '_blank'
+      a.rel = 'noopener noreferrer'
+      a.download = `${photo.title || 'foto-mm-visuals'}.jpg`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    } finally {
+      setDownloadingId(null)
+    }
   }
 
   const handleDelete = async (photo: Photo) => {
@@ -105,17 +146,20 @@ export function PhotosPage() {
                 {/* Barra de botones de acción 100% visible en móvil y responsive */}
                 <div className="flex items-center gap-1.5 pt-2 border-t border-[var(--border-color)]">
                   {/* Botón Descargar */}
-                  <a
-                    href={photo.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download={photo.title || 'foto-mm-visuals'}
-                    className="flex-1 py-1.5 px-2 bg-emerald-500/15 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  <button
+                    type="button"
+                    onClick={(e) => handleDownload(photo, e)}
+                    disabled={downloadingId === photo.id}
+                    className="flex-1 py-1.5 px-2 bg-emerald-500/15 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                     title="Descargar archivo en máxima calidad"
                   >
-                    <i className="fas fa-download text-[11px]" />
-                    <span>Descargar</span>
-                  </a>
+                    {downloadingId === photo.id ? (
+                      <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <i className="fas fa-download text-[11px]" />
+                    )}
+                    <span>{downloadingId === photo.id ? 'Descargando…' : 'Descargar'}</span>
+                  </button>
 
                   {/* Botón Datos */}
                   <button
@@ -242,16 +286,19 @@ export function PhotosPage() {
 
             {/* Acciones del Modal */}
             <div className="flex flex-col sm:flex-row items-center gap-2 pt-3 border-t border-[var(--border-color)]">
-              <a
-                href={selectedPhoto.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                download={selectedPhoto.title || 'foto-mm-visuals'}
-                className="w-full sm:flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+              <button
+                type="button"
+                onClick={() => handleDownload(selectedPhoto)}
+                disabled={downloadingId === selectedPhoto.id}
+                className="w-full sm:flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm disabled:opacity-50"
               >
-                <i className="fas fa-download" />
-                <span>Descargar en alta calidad</span>
-              </a>
+                {downloadingId === selectedPhoto.id ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <i className="fas fa-download" />
+                )}
+                <span>{downloadingId === selectedPhoto.id ? 'Descargando archivo…' : 'Descargar en alta calidad'}</span>
+              </button>
 
               <button
                 type="button"
