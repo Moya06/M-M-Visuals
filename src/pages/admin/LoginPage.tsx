@@ -42,7 +42,7 @@ export function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo M&M Visuals */}
         <div className="text-center mb-8 flex flex-col items-center">
-          <div className="w-28 h-28 flex items-center justify-center mb-3">
+          <div className="w-36 h-36 flex items-center justify-center mb-4">
             <img
               src={theme === 'light' ? '/logo-circle-light.png' : '/logo-circle-dark.png'}
               alt="M&M Visuals"

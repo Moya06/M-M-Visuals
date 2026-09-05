@@ -32,8 +32,8 @@ export function AdminLayout() {
           >
             <i className="fas fa-bars text-sm" />
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 flex items-center justify-center shrink-0">
               <img
                 src={theme === 'light' ? '/logo-circle-light.png' : '/logo-circle-dark.png'}
                 alt="M&M Visuals"
@@ -84,7 +84,7 @@ export function AdminLayout() {
         {/* Encabezado del sidebar */}
         <div className="px-6 py-5 border-b border-[var(--border-color)] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 flex items-center justify-center shrink-0">
+            <div className="w-14 h-14 flex items-center justify-center shrink-0">
               <img
                 src={theme === 'light' ? '/logo-circle-light.png' : '/logo-circle-dark.png'}
                 alt="M&M Visuals"

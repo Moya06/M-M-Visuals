@@ -28,7 +28,7 @@ export function Header() {
         <nav className="flex flex-col md:flex-row justify-between items-center flex-wrap py-2 md:py-2.5 gap-3 md:gap-0">
           {/* Logo en la esquina: grande, transparente por defecto, aro sutil solo en hover */}
           <a href="#inicio" className="flex items-center gap-3 md:gap-4 no-underline group py-1">
-            <div className="relative w-14 h-14 md:w-20 md:h-20 flex items-center justify-center p-0.5 transition-transform duration-300 group-hover:scale-105 shrink-0">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center p-0.5 transition-transform duration-300 group-hover:scale-105 shrink-0">
               {/* Aro dorado centrado geométricamente con todo el emblema y sus salientes */}
               <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-[var(--accent)] group-hover:shadow-[0_0_20px_rgba(201,168,76,0.4)] transition-all duration-300 opacity-0 group-hover:opacity-100 pointer-events-none" />
               <img
@@ -39,8 +39,8 @@ export function Header() {
               />
             </div>
             <div className="flex flex-col justify-center items-center md:items-start text-center md:text-left">
-              <span className="font-serif text-[22px] md:text-[28px] font-bold tracking-[1.5px] md:tracking-[2px] text-[var(--text-main)] leading-none transition-colors duration-300 group-hover:text-[var(--accent)]">
-                M&M <span className="text-[var(--accent)] font-serif italic text-[18px] md:text-[26px]">Visuals</span>
+              <span className="font-serif text-[24px] md:text-[30px] font-bold tracking-[1.5px] md:tracking-[2px] text-[var(--text-main)] leading-none transition-colors duration-300 group-hover:text-[var(--accent)]">
+                M&M <span className="text-[var(--accent)] font-serif italic text-[20px] md:text-[28px]">Visuals</span>
               </span>
               <span className="text-[9px] md:text-[10px] tracking-[3px] md:tracking-[4px] uppercase text-[var(--text-muted)] font-semibold mt-1">
                 Photography Studio

@@ -9,7 +9,7 @@ export function Footer() {
         <div className="flex justify-between items-start mb-[40px] gap-10 flex-wrap">
           <div className="max-w-[360px]">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 flex items-center justify-center shrink-0">
+              <div className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shrink-0">
                 <img
                   src={theme === 'light' ? '/logo-circle-light.png' : '/logo-circle-dark.png'}
                   alt="M&M Visuals"
