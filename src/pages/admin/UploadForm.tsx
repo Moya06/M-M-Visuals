@@ -332,16 +332,37 @@ export function UploadForm({ categories, onSuccess }: Props) {
           />
         </div>
         <div className="col-span-2">
-          <label className="block text-xs text-[var(--text-muted)] tracking-[1px] uppercase mb-1.5 font-semibold">Categoría</label>
+          <label className="block text-xs text-[var(--text-muted)] tracking-[1px] uppercase mb-1.5 font-semibold">
+            Categoría o Subcategoría
+          </label>
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--accent)] transition-colors cursor-pointer"
           >
-            <option value="">Sin categoría</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
+            <option value="">Sin categoría (General)</option>
+            {categories.filter((c) => !c.parent_id).map((parent) => {
+              const children = categories.filter((c) => c.parent_id === parent.id)
+              return (
+                <optgroup key={parent.id} label={`📁 ${parent.name}`}>
+                  <option value={parent.id}>{parent.name} (General)</option>
+                  {children.map((sub) => (
+                    <option key={sub.id} value={sub.id}>
+                      &nbsp;&nbsp;↳ {sub.name}
+                    </option>
+                  ))}
+                </optgroup>
+              )
+            })}
+            {categories.filter((c) => c.parent_id && !categories.some((p) => p.id === c.parent_id)).length > 0 && (
+              <optgroup label="Otras subcategorías">
+                {categories.filter((c) => c.parent_id && !categories.some((p) => p.id === c.parent_id)).map((sub) => (
+                  <option key={sub.id} value={sub.id}>
+                    ↳ {sub.name}
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
         </div>
       </div>

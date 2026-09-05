@@ -23,15 +23,15 @@ export function PhotosPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-2xl font-serif text-[var(--text-main)] mb-1 font-bold">Fotos</h1>
-          <p className="text-[var(--text-muted)] text-sm">{photos.length} foto{photos.length !== 1 ? 's' : ''} en el portafolio</p>
+          <h1 className="text-xl sm:text-2xl font-serif text-[var(--text-main)] mb-1 font-bold">Fotos</h1>
+          <p className="text-[var(--text-muted)] text-xs sm:text-sm">{photos.length} foto{photos.length !== 1 ? 's' : ''} en el portafolio</p>
         </div>
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--accent)] text-white rounded-xl text-sm font-semibold hover:bg-[var(--accent-hover)] transition-colors shadow-sm cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-[var(--accent)] text-white rounded-xl text-xs sm:text-sm font-semibold hover:bg-[var(--accent-hover)] transition-colors shadow-sm cursor-pointer self-start sm:self-auto"
         >
           <i className={`fas ${showForm ? 'fa-xmark' : 'fa-upload'}`} />
           {showForm ? 'Cancelar' : 'Subir foto'}
@@ -40,7 +40,7 @@ export function PhotosPage() {
 
       {/* Formulario de subida */}
       {showForm && (
-        <div className="mb-10 max-w-xl">
+        <div className="mb-8 max-w-2xl">
           <UploadForm categories={categories} onSuccess={handleSuccess} />
         </div>
       )}
@@ -53,10 +53,10 @@ export function PhotosPage() {
       ) : photos.length === 0 ? (
         <div className="text-center py-20 text-[var(--text-muted)]">
           <i className="fas fa-images text-4xl mb-4 block text-[var(--text-muted)]/50" />
-          <p>Aún no hay fotos. Sube la primera.</p>
+          <p className="text-sm">Aún no hay fotos. Sube la primera.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
           {photos.map((photo) => (
             <div
               key={photo.id}

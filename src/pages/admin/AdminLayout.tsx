@@ -1,5 +1,7 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { NavLink, Outlet, useNavigate, Link } from 'react-router-dom'
 import { useAuthContext } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
 
 const navItems = [
   { to: '/admin/dashboard', icon: 'fa-gauge-high', label: 'Dashboard' },
@@ -7,11 +9,10 @@ const navItems = [
   { to: '/admin/categories', icon: 'fa-tags', label: 'Categorías' },
 ]
 
-import { useTheme } from '../../context/ThemeContext'
-
 export function AdminLayout() {
   const { user, signOut } = useAuthContext()
   const { theme, toggleTheme } = useTheme()
+  const [mobileOpen, setMobileOpen] = useState(false)
   const navigate = useNavigate()
 
   const handleSignOut = async () => {
@@ -20,13 +21,19 @@ export function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] flex transition-colors duration-300">
-      {/* Sidebar */}
-      <aside className="w-64 shrink-0 bg-[var(--bg-secondary)] border-r border-[var(--border-color)] flex flex-col">
-        {/* Logo M&M Visuals */}
-        <div className="px-6 py-6 border-b border-[var(--border-color)] flex items-center justify-between">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 flex items-center justify-center shrink-0">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] flex flex-col md:flex-row transition-colors duration-300">
+      {/* ── BARRA SUPERIOR PARA MÓVILES (md:hidden) ── */}
+      <header className="md:hidden sticky top-0 z-40 bg-[var(--bg-secondary)] border-b border-[var(--border-color)] px-4 py-3 flex items-center justify-between shadow-xs">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setMobileOpen(true)}
+            aria-label="Abrir menú"
+            className="w-9 h-9 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] flex items-center justify-center text-[var(--text-main)] hover:border-[var(--accent)] transition-colors cursor-pointer"
+          >
+            <i className="fas fa-bars text-sm" />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 flex items-center justify-center shrink-0">
               <img
                 src={theme === 'light' ? '/logo-circle-light.png' : '/logo-circle-dark.png'}
                 alt="M&M Visuals"
@@ -36,55 +43,133 @@ export function AdminLayout() {
               />
             </div>
             <div>
-              <div className="font-serif text-[19px] font-bold text-[var(--text-main)] leading-none">M&M Visuals</div>
-              <div className="text-[10px] tracking-[2px] uppercase text-[var(--accent)] mt-1 font-semibold">CMS Admin</div>
+              <span className="font-serif text-sm font-bold text-[var(--text-main)] block leading-tight">M&M Visuals</span>
+              <span className="text-[9px] tracking-[1.5px] uppercase text-[var(--accent)] font-semibold block">CMS Admin</span>
             </div>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2">
           <button
             onClick={toggleTheme}
             aria-label="Cambiar tema"
-            className="w-8 h-8 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all"
-            title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}
+            className="w-8 h-8 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center cursor-pointer hover:border-[var(--accent)] transition-colors"
           >
             {theme === 'light' ? <i className="fas fa-moon text-xs" /> : <i className="fas fa-sun text-xs text-[var(--accent)]" />}
           </button>
+          <Link
+            to="/"
+            title="Ver sitio web"
+            className="w-8 h-8 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--accent)] flex items-center justify-center text-xs"
+          >
+            <i className="fas fa-external-link-alt" />
+          </Link>
+        </div>
+      </header>
+
+      {/* ── BACKDROP MÓVIL ── */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs md:hidden transition-opacity"
+        />
+      )}
+
+      {/* ── SIDEBAR (ESCRITORIO + DRAWER MÓVIL) ── */}
+      <aside
+        className={`fixed md:static top-0 bottom-0 left-0 z-50 w-72 md:w-64 shrink-0 bg-[var(--bg-secondary)] border-r border-[var(--border-color)] flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 ${
+          mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+        }`}
+      >
+        {/* Encabezado del sidebar */}
+        <div className="px-6 py-5 border-b border-[var(--border-color)] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 flex items-center justify-center shrink-0">
+              <img
+                src={theme === 'light' ? '/logo-circle-light.png' : '/logo-circle-dark.png'}
+                alt="M&M Visuals"
+                className={`w-full h-full object-contain ${
+                  theme === 'dark' ? 'logo-dark-mode' : 'logo-light-mode'
+                }`}
+              />
+            </div>
+            <div>
+              <div className="font-serif text-[18px] font-bold text-[var(--text-main)] leading-tight">M&M Visuals</div>
+              <div className="text-[10px] tracking-[2px] uppercase text-[var(--accent)] mt-0.5 font-semibold">CMS Admin</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={toggleTheme}
+              aria-label="Cambiar tema"
+              className="hidden md:flex w-8 h-8 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] items-center justify-center cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all"
+              title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}
+            >
+              {theme === 'light' ? <i className="fas fa-moon text-xs" /> : <i className="fas fa-sun text-xs text-[var(--accent)]" />}
+            </button>
+            {/* Botón cerrar en móvil */}
+            <button
+              onClick={() => setMobileOpen(false)}
+              aria-label="Cerrar menú"
+              className="md:hidden w-8 h-8 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-main)] flex items-center justify-center cursor-pointer"
+            >
+              <i className="fas fa-times text-xs" />
+            </button>
+          </div>
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 px-3 py-5 space-y-1">
+        {/* Enlaces de navegación */}
+        <nav className="flex-1 px-3 py-5 space-y-1.5 overflow-y-auto">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
+              onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
                   isActive
-                    ? 'bg-[#c9a84c]/10 text-[#c9a84c]'
-                    : 'text-[#888] hover:text-white hover:bg-white/[0.04]'
+                    ? 'bg-[var(--accent)] text-white shadow-sm shadow-[var(--accent)]/30'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border-color)]/30'
                 }`
               }
             >
-              <i className={`fas ${item.icon} w-4 text-center`} />
-              {item.label}
+              <i className={`fas ${item.icon} w-4 text-center text-sm`} />
+              <span>{item.label}</span>
             </NavLink>
           ))}
+
+          <div className="pt-4 mt-4 border-t border-[var(--border-color)]/60">
+            <Link
+              to="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--border-color)]/20 transition-all"
+            >
+              <i className="fas fa-arrow-up-right-from-square w-4 text-center text-xs" />
+              <span>Ver portafolio web</span>
+            </Link>
+          </div>
         </nav>
 
         {/* Footer del sidebar */}
-        <div className="px-6 py-5 border-t border-white/[0.06]">
-          <div className="text-[11px] text-[#555] mb-3 truncate">{user?.email}</div>
+        <div className="p-4 border-t border-[var(--border-color)] bg-[var(--bg-card)]/40">
+          <div className="text-[11px] text-[var(--text-muted)] mb-3 truncate font-medium">
+            <i className="fas fa-user-circle mr-1.5 text-[var(--accent)]" />
+            {user?.email || 'Administrador'}
+          </div>
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-2 text-xs text-[#888] hover:text-red-400 transition-colors duration-200"
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white transition-all duration-200 cursor-pointer"
           >
-            <i className="fas fa-right-from-bracket" />
+            <i className="fas fa-right-from-bracket text-xs" />
             Cerrar sesión
           </button>
         </div>
       </aside>
 
-      {/* Contenido principal */}
-      <main className="flex-1 overflow-auto">
+      {/* ── CONTENIDO PRINCIPAL RESPONSIVO ── */}
+      <main className="flex-1 min-w-0 overflow-y-auto">
         <Outlet />
       </main>
     </div>

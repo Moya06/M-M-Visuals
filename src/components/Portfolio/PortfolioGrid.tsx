@@ -16,7 +16,14 @@ export function PortfolioGrid({ photos, categories, loading = false, onOpenImage
 
   // Filtrado en cliente (sin re-fetch)
   const filtered = activeCategoryId
-    ? photos.filter((p) => p.category_id === activeCategoryId)
+    ? photos.filter((p) => {
+        if (p.category_id === activeCategoryId) return true
+        // Si la categoría seleccionada es un padre, incluir fotos de sus subcategorías
+        const subcatIds = categories
+          .filter((c) => c.parent_id === activeCategoryId)
+          .map((c) => c.id)
+        return p.category_id ? subcatIds.includes(p.category_id) : false
+      })
     : photos
 
   return (

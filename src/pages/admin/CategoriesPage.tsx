@@ -4,50 +4,69 @@ import type { Category } from '../../types'
 
 export function CategoriesPage() {
   const { categories, loading, createCategory, updateCategory, deleteCategory } = useCategories()
+  
+  // Modo de creación: 'main' = Categoría Principal, 'sub' = Subcategoría
+  const [createMode, setCreateMode] = useState<'main' | 'sub'>('main')
   const [newName, setNewName] = useState('')
-  const [newParentId, setNewParentId] = useState<string | null>(null)
+  const [selectedParentId, setSelectedParentId] = useState<string>('')
+
+  // Edición
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [editParentId, setEditParentId] = useState<string | null>(null)
 
-  const [addingSubToId, setAddingSubToId] = useState<string | null>(null)
-  const [subName, setSubName] = useState('')
+  // Creación rápida inline en una categoría específica
+  const [quickSubParentId, setQuickSubParentId] = useState<string | null>(null)
+  const [quickSubName, setQuickSubName] = useState('')
 
   const [submitting, setSubmitting] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'ok' | 'err'; msg: string } | null>(null)
 
-  // Computados
+  // Categorías principales (sin padre)
   const parentCategories = categories.filter((c) => !c.parent_id)
-
-  const getSortedCategories = () => {
-    const parents = categories.filter(c => !c.parent_id)
-    const sorted: Category[] = []
-    parents.forEach(p => {
-      sorted.push(p)
-      const children = categories.filter(c => c.parent_id === p.id)
-      sorted.push(...children)
-    })
-    return sorted
-  }
 
   const showFeedback = (type: 'ok' | 'err', msg: string) => {
     setFeedback({ type, msg })
-    setTimeout(() => setFeedback(null), 3000)
+    setTimeout(() => setFeedback(null), 3500)
   }
 
+  // Crear categoría principal o subcategoría desde el formulario superior
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newName.trim()) {
-      showFeedback('err', 'Por favor escribe el nombre de la categoría antes de presionar Crear.')
+      showFeedback('err', 'Por favor escribe el nombre de la categoría.')
       return
     }
+
+    if (createMode === 'sub' && !selectedParentId) {
+      showFeedback('err', 'Por favor selecciona a cuál categoría principal pertenece esta subcategoría.')
+      return
+    }
+
     setSubmitting(true)
-    const { error } = await createCategory(newName.trim(), newParentId)
-    if (error) showFeedback('err', `Error al crear: ${(error as { message?: string })?.message ?? 'desconocido'}`)
-    else {
-      showFeedback('ok', '¡Categoría creada con éxito!')
+    const parentId = createMode === 'sub' ? selectedParentId : null
+    const { error } = await createCategory(newName.trim(), parentId)
+
+    if (error) {
+      showFeedback('err', `Error al crear: ${(error as { message?: string })?.message ?? 'desconocido'}`)
+    } else {
+      showFeedback('ok', createMode === 'sub' ? '¡Subcategoría creada con éxito!' : '¡Categoría principal creada con éxito!')
       setNewName('')
-      setNewParentId(null)
+    }
+    setSubmitting(false)
+  }
+
+  // Creación rápida de subcategoría directamente en la tarjeta del padre
+  const handleQuickCreateSub = async (parentId: string) => {
+    if (!quickSubName.trim()) return
+    setSubmitting(true)
+    const { error } = await createCategory(quickSubName.trim(), parentId)
+    if (error) {
+      showFeedback('err', `Error al crear subcategoría: ${(error as { message?: string })?.message ?? 'desconocido'}`)
+    } else {
+      showFeedback('ok', '¡Subcategoría agregada con éxito!')
+      setQuickSubParentId(null)
+      setQuickSubName('')
     }
     setSubmitting(false)
   }
@@ -62,163 +81,407 @@ export function CategoriesPage() {
     if (!editName.trim()) return
     setSubmitting(true)
     const { error } = await updateCategory(id, editName.trim(), editParentId)
-    if (error) showFeedback('err', `Error al actualizar: ${(error as { message?: string })?.message ?? 'desconocido'}`)
-    else { showFeedback('ok', 'Categoría actualizada'); setEditingId(null) }
-    setSubmitting(false)
-  }
-
-  const handleCreateSub = async (parentId: string) => {
-    if (!subName.trim()) return
-    setSubmitting(true)
-    const { error } = await createCategory(subName.trim(), parentId)
-    if (error) showFeedback('err', `Error al crear subcategoría: ${(error as { message?: string })?.message ?? 'desconocido'}`)
-    else {
-      showFeedback('ok', 'Subcategoría agregada')
-      setAddingSubToId(null)
-      setSubName('')
+    if (error) {
+      showFeedback('err', `Error al actualizar: ${(error as { message?: string })?.message ?? 'desconocido'}`)
+    } else {
+      showFeedback('ok', 'Categoría actualizada correctamente.')
+      setEditingId(null)
     }
     setSubmitting(false)
   }
 
   const handleDelete = async (cat: Category) => {
-    if (!confirm(`¿Eliminar la categoría "${cat.name}"? Las fotos asociadas perderán su categoría.`)) return
+    const isParent = !cat.parent_id
+    const childCount = categories.filter((c) => c.parent_id === cat.id).length
+    const promptMsg = isParent && childCount > 0
+      ? `¿Eliminar "${cat.name}"? Esta categoría tiene ${childCount} subcategoría(s) asociada(s).`
+      : `¿Eliminar "${cat.name}"? Las fotos asociadas quedarán sin categoría.`
+
+    if (!confirm(promptMsg)) return
     const { error } = await deleteCategory(cat.id)
     if (error) showFeedback('err', `Error al eliminar: ${(error as { message?: string })?.message ?? 'desconocido'}`)
-    else showFeedback('ok', 'Categoría eliminada')
+    else showFeedback('ok', 'Categoría eliminada.')
   }
 
   return (
-    <div className="p-8 max-w-2xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-serif text-[var(--text-main)] mb-1 font-bold">Categorías</h1>
-        <p className="text-[var(--text-muted)] text-sm">Crea y gestiona las categorías de tu portafolio M&M Visuals</p>
+    <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto space-y-8">
+      {/* Encabezado */}
+      <div>
+        <h1 className="text-xl sm:text-2xl font-serif text-[var(--text-main)] mb-1 font-bold">
+          Categorías y Subcategorías
+        </h1>
+        <p className="text-[var(--text-muted)] text-xs sm:text-sm">
+          Organiza tu portafolio fotográfico en categorías principales y sus respectivas especialidades.
+        </p>
       </div>
 
-      {/* Feedback */}
+      {/* Feedback Alert */}
       {feedback && (
-        <div className={`mb-5 px-4 py-3 rounded-xl text-sm border ${feedback.type === 'ok'
-          ? 'bg-green-500/10 border-green-500/30 text-green-500 font-medium'
-          : 'bg-red-500/10 border-red-500/30 text-red-500 font-medium'
-          }`}>
-          {feedback.msg}
+        <div
+          className={`px-4 py-3 rounded-xl text-xs sm:text-sm border transition-all flex items-center gap-2 ${
+            feedback.type === 'ok'
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-medium'
+              : 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400 font-medium'
+          }`}
+        >
+          <i className={`fas ${feedback.type === 'ok' ? 'fa-check-circle' : 'fa-circle-exclamation'}`} />
+          <span>{feedback.msg}</span>
         </div>
       )}
 
-      {/* Formulario crear */}
-      <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-3 mb-8 bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-color)]">
-        <div className="flex-1 flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="Nombre (ej. Sesión Casual)"
-            className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50 focus:outline-none focus:border-[var(--accent)] transition-colors"
-          />
-          <select
-            value={newParentId || ''}
-            onChange={(e) => setNewParentId(e.target.value || null)}
-            className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--accent)]"
+      {/* ── PANEL DE CREACIÓN CON PESTAÑAS CLARAS ── */}
+      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 sm:p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4 border-b border-[var(--border-color)]/60 pb-3">
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-[1px] mr-2">
+            Crear:
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setCreateMode('main')
+              setSelectedParentId('')
+            }}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              createMode === 'main'
+                ? 'bg-[var(--accent)] text-white shadow-xs'
+                : 'bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)] border border-[var(--border-color)]'
+            }`}
           >
-            <option value="">Principal (Sin padre)</option>
-            {parentCategories.map(p => (
-              <option key={p.id} value={p.id}>Sub de: {p.name}</option>
-            ))}
-          </select>
+            <i className="fas fa-folder text-xs" />
+            <span>Categoría Principal</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setCreateMode('sub')
+              if (!selectedParentId && parentCategories.length > 0) {
+                setSelectedParentId(parentCategories[0].id)
+              }
+            }}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              createMode === 'sub'
+                ? 'bg-[var(--accent)] text-white shadow-xs'
+                : 'bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--text-main)] border border-[var(--border-color)]'
+            }`}
+          >
+            <i className="fas fa-turn-down text-xs rotate-[-90deg] scale-y-[-1]" />
+            <span>Subcategoría</span>
+          </button>
         </div>
-        <button
-          type="submit"
-          disabled={submitting}
-          className="px-6 py-2.5 bg-[var(--accent)] text-white rounded-xl text-sm font-semibold hover:bg-[var(--accent-hover)] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {submitting ? (
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <i className="fas fa-plus" />
-          )}
-          Crear
-        </button>
-      </form>
 
-      {/* Lista */}
-      {loading ? (
-        <div className="flex justify-center py-10">
-          <div className="w-6 h-6 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
-        </div>
-      ) : categories.length === 0 ? (
-        <p className="text-[var(--text-muted)] text-sm text-center py-10">Aún no hay categorías. Crea la primera arriba.</p>
-      ) : (
-        <ul className="space-y-2 p-0 m-0 list-none">
-          {getSortedCategories().map((cat) => (
-            <li key={cat.id} className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-[var(--bg-card)] border ${cat.parent_id ? 'border-dashed border-[var(--border-color)] ml-6 sm:ml-10' : 'border-[var(--border-color)]'} rounded-xl px-4 py-3 shadow-sm`}>
-              {editingId === cat.id ? (
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
-                  <input
-                    autoFocus
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') handleUpdate(cat.id); if (e.key === 'Escape') setEditingId(null) }}
-                    className="flex-1 bg-[var(--bg-primary)] border border-[var(--accent)] rounded-lg px-3 py-1.5 text-sm text-[var(--text-main)] focus:outline-none"
-                  />
-                  {!cat.parent_id && categories.some(c => c.parent_id === cat.id) ? (
-                    <span className="text-[10px] text-[var(--text-muted)] italic">Tiene subcategorías</span>
-                  ) : (
-                    <select
-                      value={editParentId || ''}
-                      onChange={(e) => setEditParentId(e.target.value || null)}
-                      className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-2 py-1.5 text-xs text-[var(--text-main)] focus:outline-none"
-                    >
-                      <option value="">Principal</option>
-                      {parentCategories.filter(p => p.id !== cat.id).map(p => (
-                        <option key={p.id} value={p.id}>Sub de: {p.name}</option>
-                      ))}
-                    </select>
-                  )}
-                  <div className="flex gap-2 mt-2 sm:mt-0">
-                    <button onClick={() => handleUpdate(cat.id)} disabled={submitting} className="text-xs px-3 py-1.5 bg-[var(--accent)] text-white rounded-lg font-semibold hover:bg-[var(--accent-hover)]">Guardar</button>
-                    <button onClick={() => setEditingId(null)} className="text-xs px-3 py-1.5 bg-transparent border border-[var(--border-color)] text-[var(--text-muted)] rounded-lg hover:text-[var(--text-main)]">Cancelar</button>
-                  </div>
+        <form onSubmit={handleCreate} className="space-y-4">
+          {createMode === 'sub' && (
+            <div>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-[0.5px] mb-1.5">
+                ¿A cuál categoría principal pertenece?
+              </label>
+              {parentCategories.length === 0 ? (
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-600 dark:text-amber-400">
+                  Primero debes crear al menos una categoría principal arriba para poder asignarle subcategorías.
                 </div>
               ) : (
-                <div className="flex flex-col w-full gap-2">
-                  <div className="flex items-center gap-3 w-full">
-                    {cat.parent_id && <i className="fas fa-level-up-alt rotate-90 text-[var(--text-muted)]/50 mr-1" />}
-                    <div className="flex-1">
-                      <span className="text-sm text-[var(--text-main)] font-medium">{cat.name}</span>
-                      <span className="ml-2 text-[10px] text-[var(--text-muted)] font-mono opacity-60">
-                        {cat.slug}
-                      </span>
-                    </div>
-                    {!cat.parent_id && (
-                      <button onClick={() => { setAddingSubToId(cat.id); setSubName(''); }} className="text-[var(--text-muted)] hover:text-green-500 transition-colors p-1.5 cursor-pointer" title="Agregar subcategoría">
-                        <i className="fas fa-folder-plus text-xs" />
-                      </button>
+                <select
+                  value={selectedParentId}
+                  onChange={(e) => setSelectedParentId(e.target.value)}
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--accent)] transition-colors cursor-pointer"
+                >
+                  <option value="">-- Selecciona una categoría principal --</option>
+                  {parentCategories.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      📁 {p.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder={
+                createMode === 'main'
+                  ? 'Nombre de la categoría principal (ej. Bodas, Retratos, Fauna...)'
+                  : 'Nombre de la subcategoría (ej. Casual, Civil, Aves, Estudio...)'
+              }
+              className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50 focus:outline-none focus:border-[var(--accent)] transition-colors"
+            />
+            <button
+              type="submit"
+              disabled={submitting || (createMode === 'sub' && parentCategories.length === 0)}
+              className="px-6 py-2.5 bg-[var(--accent)] text-white rounded-xl text-xs sm:text-sm font-semibold hover:bg-[var(--accent-hover)] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xs shrink-0"
+            >
+              {submitting ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <i className="fas fa-plus" />
+              )}
+              <span>{createMode === 'main' ? 'Crear Principal' : 'Crear Subcategoría'}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* ── LISTADO ESTRUCTURADO DE CATEGORÍAS Y SUBCATEGORÍAS ── */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-[1.5px]">
+            Estructura de Categorías ({parentCategories.length} principales)
+          </h2>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <div className="w-8 h-8 border-3 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : parentCategories.length === 0 ? (
+          <div className="text-center py-12 px-4 bg-[var(--bg-card)] border border-dashed border-[var(--border-color)] rounded-2xl">
+            <i className="fas fa-tags text-3xl text-[var(--text-muted)]/40 mb-3 block" />
+            <p className="text-sm font-medium text-[var(--text-main)] mb-1">Aún no hay categorías creadas</p>
+            <p className="text-xs text-[var(--text-muted)]">
+              Crea tu primera categoría principal arriba (por ejemplo: Retratos, Bodas o Paisajes).
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {parentCategories.map((parent) => {
+              const subcategories = categories.filter((c) => c.parent_id === parent.id)
+              const isEditingParent = editingId === parent.id
+              const isAddingQuickSub = quickSubParentId === parent.id
+
+              return (
+                <div
+                  key={parent.id}
+                  className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden shadow-sm transition-all"
+                >
+                  {/* Encabezado de la Categoría Principal */}
+                  <div className="p-4 sm:p-5 bg-[var(--bg-secondary)]/50 border-b border-[var(--border-color)]">
+                    {isEditingParent ? (
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                        <input
+                          autoFocus
+                          type="text"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleUpdate(parent.id)
+                            if (e.key === 'Escape') setEditingId(null)
+                          }}
+                          className="flex-1 bg-[var(--bg-primary)] border border-[var(--accent)] rounded-xl px-3.5 py-2 text-sm text-[var(--text-main)] focus:outline-none"
+                        />
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleUpdate(parent.id)}
+                            disabled={submitting}
+                            className="px-4 py-2 bg-[var(--accent)] text-white text-xs font-semibold rounded-xl hover:bg-[var(--accent-hover)] cursor-pointer"
+                          >
+                            Guardar
+                          </button>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="px-4 py-2 border border-[var(--border-color)] text-[var(--text-muted)] text-xs font-semibold rounded-xl hover:text-[var(--text-main)] cursor-pointer"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-[var(--accent)]/15 text-[var(--accent)] flex items-center justify-center shrink-0">
+                            <i className="fas fa-folder text-sm" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="text-base font-bold text-[var(--text-main)]">{parent.name}</h3>
+                              <span className="px-2 py-0.5 rounded-md bg-[var(--accent)]/10 text-[var(--accent)] text-[10px] font-semibold uppercase tracking-wider">
+                                Principal
+                              </span>
+                              <span className="text-xs text-[var(--text-muted)]">
+                                ({subcategories.length} {subcategories.length === 1 ? 'subcategoría' : 'subcategorías'})
+                              </span>
+                            </div>
+                            <span className="text-[11px] text-[var(--text-muted)] font-mono">
+                              slug: {parent.slug}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Botones de acción para la categoría principal */}
+                        <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                          <button
+                            onClick={() => {
+                              setQuickSubParentId(parent.id)
+                              setQuickSubName('')
+                            }}
+                            className="px-3 py-1.5 rounded-xl border border-[var(--accent)]/60 text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
+                            title={`Añadir subcategoría a ${parent.name}`}
+                          >
+                            <i className="fas fa-plus text-[10px]" />
+                            <span>Añadir Subcategoría</span>
+                          </button>
+                          <button
+                            onClick={() => startEdit(parent)}
+                            className="w-8 h-8 rounded-xl border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:border-[var(--accent)] flex items-center justify-center text-xs transition-colors cursor-pointer"
+                            title="Editar nombre"
+                          >
+                            <i className="fas fa-pen" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(parent)}
+                            className="w-8 h-8 rounded-xl border border-[var(--border-color)] text-[var(--text-muted)] hover:text-red-500 hover:border-red-500/40 flex items-center justify-center text-xs transition-colors cursor-pointer"
+                            title="Eliminar categoría principal"
+                          >
+                            <i className="fas fa-trash" />
+                          </button>
+                        </div>
+                      </div>
                     )}
-                    <button onClick={() => startEdit(cat)} className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors p-1.5 cursor-pointer" title="Editar"><i className="fas fa-pen text-xs" /></button>
-                    <button onClick={() => handleDelete(cat)} className="text-[var(--text-muted)] hover:text-red-500 transition-colors p-1.5 cursor-pointer" title="Eliminar"><i className="fas fa-trash text-xs" /></button>
                   </div>
 
-                  {addingSubToId === cat.id && (
-                    <div className="flex items-center gap-2 mt-2 ml-4">
-                      <i className="fas fa-level-up-alt rotate-90 text-[var(--text-muted)]/50" />
-                      <input
-                        autoFocus
-                        type="text"
-                        value={subName}
-                        onChange={(e) => setSubName(e.target.value)}
-                        placeholder="Nombre de subcategoría..."
-                        onKeyDown={(e) => { if (e.key === 'Enter') handleCreateSub(cat.id); if (e.key === 'Escape') setAddingSubToId(null) }}
-                        className="flex-1 bg-[var(--bg-primary)] border border-[var(--accent)] rounded-lg px-3 py-1.5 text-sm text-[var(--text-main)] focus:outline-none"
-                      />
-                      <button onClick={() => handleCreateSub(cat.id)} disabled={submitting} className="text-xs px-3 py-1.5 bg-[var(--accent)] text-white rounded-lg font-semibold hover:bg-[var(--accent-hover)]">Crear</button>
-                      <button onClick={() => setAddingSubToId(null)} className="text-xs px-3 py-1.5 bg-transparent border border-[var(--border-color)] text-[var(--text-muted)] rounded-lg hover:text-[var(--text-main)]">Cancelar</button>
+                  {/* Formulario rápido para añadir subcategoría a este padre */}
+                  {isAddingQuickSub && (
+                    <div className="p-4 bg-[var(--accent)]/5 border-b border-[var(--accent)]/20 animate-[fadeUp_0.2s_ease-out]">
+                      <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-[var(--accent)]">
+                        <i className="fas fa-turn-down rotate-[-90deg] scale-y-[-1]" />
+                        <span>Nueva subcategoría para "{parent.name}":</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                          autoFocus
+                          type="text"
+                          value={quickSubName}
+                          onChange={(e) => setQuickSubName(e.target.value)}
+                          placeholder="Nombre (ej. Casual, Civil, En Estudio...)"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleQuickCreateSub(parent.id)
+                            if (e.key === 'Escape') setQuickSubParentId(null)
+                          }}
+                          className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-color)] focus:border-[var(--accent)] rounded-xl px-3.5 py-2 text-sm text-[var(--text-main)] focus:outline-none"
+                        />
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleQuickCreateSub(parent.id)}
+                            disabled={submitting}
+                            className="px-4 py-2 bg-[var(--accent)] text-white text-xs font-semibold rounded-xl hover:bg-[var(--accent-hover)] cursor-pointer"
+                          >
+                            Crear Subcategoría
+                          </button>
+                          <button
+                            onClick={() => setQuickSubParentId(null)}
+                            className="px-3.5 py-2 border border-[var(--border-color)] text-[var(--text-muted)] text-xs font-semibold rounded-xl hover:text-[var(--text-main)] cursor-pointer"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   )}
+
+                  {/* Lista de Subcategorías hijas */}
+                  <div className="p-4 sm:p-5">
+                    {subcategories.length === 0 ? (
+                      <div className="text-xs text-[var(--text-muted)] italic py-2 flex items-center justify-between">
+                        <span>Sin subcategorías todavía. Pulsa "+ Añadir Subcategoría" arriba para agregarle especialidades.</span>
+                      </div>
+                    ) : (
+                      <ul className="space-y-2.5 p-0 m-0 list-none">
+                        {subcategories.map((sub) => {
+                          const isEditingSub = editingId === sub.id
+
+                          return (
+                            <li
+                              key={sub.id}
+                              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)]/70 hover:border-[var(--border-color)] transition-colors"
+                            >
+                              {isEditingSub ? (
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
+                                  <input
+                                    autoFocus
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') handleUpdate(sub.id)
+                                      if (e.key === 'Escape') setEditingId(null)
+                                    }}
+                                    className="flex-1 bg-[var(--bg-card)] border border-[var(--accent)] rounded-lg px-3 py-1.5 text-xs sm:text-sm text-[var(--text-main)] focus:outline-none"
+                                  />
+                                  <select
+                                    value={editParentId || ''}
+                                    onChange={(e) => setEditParentId(e.target.value || null)}
+                                    className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-main)] focus:outline-none"
+                                  >
+                                    <option value="">Convertir en Principal (Sin padre)</option>
+                                    {parentCategories.map((p) => (
+                                      <option key={p.id} value={p.id}>
+                                        Mover a: {p.name}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <div className="flex items-center gap-1.5">
+                                    <button
+                                      onClick={() => handleUpdate(sub.id)}
+                                      disabled={submitting}
+                                      className="px-3 py-1.5 bg-[var(--accent)] text-white text-xs font-semibold rounded-lg hover:bg-[var(--accent-hover)] cursor-pointer"
+                                    >
+                                      Guardar
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingId(null)}
+                                      className="px-3 py-1.5 border border-[var(--border-color)] text-[var(--text-muted)] text-xs font-semibold rounded-lg hover:text-[var(--text-main)] cursor-pointer"
+                                    >
+                                      Cancelar
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  <div className="flex items-center gap-2.5">
+                                    <i className="fas fa-turn-down rotate-[-90deg] scale-y-[-1] text-[var(--accent)] text-xs ml-1" />
+                                    <div>
+                                      <span className="text-xs sm:text-sm font-semibold text-[var(--text-main)]">
+                                        {sub.name}
+                                      </span>
+                                      <span className="ml-2 text-[10px] text-[var(--text-muted)] font-mono">
+                                        {sub.slug}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                                    <button
+                                      onClick={() => startEdit(sub)}
+                                      className="w-7 h-7 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--accent)] hover:border-[var(--accent)] flex items-center justify-center text-xs transition-colors cursor-pointer"
+                                      title="Editar o mover subcategoría"
+                                    >
+                                      <i className="fas fa-pen text-[10px]" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDelete(sub)}
+                                      className="w-7 h-7 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-red-500 hover:border-red-500/40 flex items-center justify-center text-xs transition-colors cursor-pointer"
+                                      title="Eliminar subcategoría"
+                                    >
+                                      <i className="fas fa-trash text-[10px]" />
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    )}
+                  </div>
                 </div>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
+
