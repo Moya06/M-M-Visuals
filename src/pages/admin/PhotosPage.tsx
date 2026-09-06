@@ -254,9 +254,9 @@ export function PhotosPage() {
                   </p>
                 </div>
 
-                {/* Barra de botones de acción 100% visible en móvil y responsive */}
-                <div className="flex items-center gap-1.5 pt-2 border-t border-[var(--border-color)]">
-                  {/* Botón Descargar */}
+                {/* Barra de botones de acción organizada en 2 filas limpias para evitar recortes */}
+                <div className="space-y-1.5 pt-2 border-t border-[var(--border-color)]">
+                  {/* Fila 1: Botón Descargar destacado */}
                   <button
                     type="button"
                     onClick={(e) => {
@@ -264,7 +264,7 @@ export function PhotosPage() {
                       setDownloadModalPhoto(photo)
                     }}
                     disabled={downloadingId === photo.id}
-                    className="flex-1 py-1.5 px-2 bg-emerald-500/15 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                    className="w-full py-1.5 px-3 bg-emerald-500/15 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                     title="Opciones de descarga (Celular 2MB o Calidad Original)"
                   >
                     {downloadingId === photo.id ? (
@@ -275,42 +275,45 @@ export function PhotosPage() {
                     <span>Descargar</span>
                   </button>
 
-                  {/* Botón Editar */}
-                  <button
-                    type="button"
-                    onClick={(e) => openEditModal(photo, e)}
-                    className="py-1.5 px-2 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
-                    title="Editar título, descripción, categoría o visibilidad"
-                  >
-                    <i className="fas fa-pen-to-square text-[11px]" />
-                    <span>Editar</span>
-                  </button>
+                  {/* Fila 2: Editar, Datos y Eliminar con espacio suficiente */}
+                  <div className="flex items-center gap-1.5">
+                    {/* Botón Editar */}
+                    <button
+                      type="button"
+                      onClick={(e) => openEditModal(photo, e)}
+                      className="flex-1 py-1.5 px-2 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      title="Editar título, descripción, categoría o visibilidad"
+                    >
+                      <i className="fas fa-pen-to-square text-[11px]" />
+                      <span>Editar</span>
+                    </button>
 
-                  {/* Botón Datos */}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPhoto(photo)}
-                    className="py-1.5 px-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--accent)] hover:text-[var(--accent)] rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
-                    title="Ver datos y detalles"
-                  >
-                    <i className="fas fa-circle-info text-[11px] text-[var(--accent)]" />
-                    <span>Datos</span>
-                  </button>
+                    {/* Botón Datos */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPhoto(photo)}
+                      className="flex-1 py-1.5 px-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--accent)] hover:text-[var(--accent)] rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      title="Ver datos y detalles"
+                    >
+                      <i className="fas fa-circle-info text-[11px] text-[var(--accent)]" />
+                      <span>Datos</span>
+                    </button>
 
-                  {/* Botón Delete */}
-                  <button
-                    type="button"
-                    onClick={() => setPhotoToDelete(photo)}
-                    disabled={deletingId === photo.id}
-                    className="py-1.5 px-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50"
-                    title="Eliminar foto"
-                  >
-                    {deletingId === photo.id ? (
-                      <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <i className="fas fa-trash text-[11px]" />
-                    )}
-                  </button>
+                    {/* Botón Delete */}
+                    <button
+                      type="button"
+                      onClick={() => setPhotoToDelete(photo)}
+                      disabled={deletingId === photo.id}
+                      className="w-8 h-7 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+                      title="Eliminar foto"
+                    >
+                      {deletingId === photo.id ? (
+                        <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <i className="fas fa-trash text-[11px]" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
