@@ -21,8 +21,12 @@ export function PortfolioItem({ image, index, onOpen }: Props) {
 
     const rect = el.getBoundingClientRect()
     if (rect.top < window.innerHeight + 100 && rect.bottom > -100) {
-      setIsVisible(true)
-      return
+      // Pequeño retardo de frame (35ms) para que el navegador registre el estado inicial (opacity-0)
+      // y la transición CSS se reproduzca con total suavidad desde la primera imagen (index 0)
+      const timer = setTimeout(() => {
+        setIsVisible(true)
+      }, 35)
+      return () => clearTimeout(timer)
     }
 
     const observer = new IntersectionObserver(
@@ -41,8 +45,10 @@ export function PortfolioItem({ image, index, onOpen }: Props) {
   return (
     <div
       ref={ref}
-      className={`relative cursor-pointer bg-[#1a1a1a] break-inside-avoid mb-6 rounded-xl overflow-hidden transition-all duration-500 ease-out hover:-translate-y-1.5 hover:shadow-[0_20px_45px_rgba(0,0,0,0.35)] group ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-      style={{ transitionDelay: `${(index % 4) * 70}ms` }}
+      className={`relative cursor-pointer bg-[#1a1a1a] break-inside-avoid mb-6 rounded-xl overflow-hidden transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:shadow-[0_20px_45px_rgba(0,0,0,0.35)] group ${
+        isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-6 scale-[0.98]'
+      }`}
+      style={{ transitionDelay: `${(index % 4) * 80}ms` }}
       onClick={() => onOpen(index)}
     >
       <img

@@ -54,23 +54,32 @@ export function PortfolioGrid({ photos, categories, loading = false, onOpenImage
 
         {/* Grilla */}
         {!loading && filtered.length === 0 && (
-          <p className="text-center text-[#555] py-20">No hay fotos en esta categoría.</p>
+          <div className="text-center text-[var(--text-muted)] py-20 animate-fade-in">
+            <i className="fas fa-images text-3xl mb-3 opacity-40 block" />
+            <p className="text-sm">No hay fotografías disponibles en esta categoría.</p>
+          </div>
         )}
 
-        <div ref={gridRef} className="columns-1 sm:columns-2 lg:columns-3 gap-4 sm:gap-6">
-          {filtered.map((photo, i) => (
-            <PortfolioItem
-              key={photo.id}
-              image={{
-                src: photo.thumbnail_url ?? photo.url,
-                title: photo.title,
-                is_private: photo.is_private,
-              }}
-              index={i}
-              onOpen={() => onOpenImage(i, filtered)}
-            />
-          ))}
-        </div>
+        {!loading && filtered.length > 0 && (
+          <div
+            key={activeCategoryId || 'all'}
+            ref={gridRef}
+            className="columns-1 sm:columns-2 lg:columns-3 gap-4 sm:gap-6 animate-fade-in"
+          >
+            {filtered.map((photo, i) => (
+              <PortfolioItem
+                key={`${activeCategoryId || 'all'}-${photo.id}`}
+                image={{
+                  src: photo.thumbnail_url ?? photo.url,
+                  title: photo.title,
+                  is_private: photo.is_private,
+                }}
+                index={i}
+                onOpen={() => onOpenImage(i, filtered)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )
