@@ -13,10 +13,10 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
   if (photos.length === 0) {
     return (
       <section className="py-20 scroll-mt-20 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/30" id="privadas">
-        <div className="max-w-[1300px] mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-500 text-xs font-semibold uppercase tracking-wider mb-3">
+        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 flex flex-col items-center text-center">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-500 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <i className="fas fa-lock text-[11px]" />
-            <span>Apartado Privado (Solo Admin)</span>
+            <span>Apartado Exclusivo · Solo visible para ti como Super Admin</span>
           </div>
           <h2 className="font-serif text-2xl md:text-3xl font-bold text-[var(--text-main)] mb-3">
             Colección Privada & Crónicas
@@ -40,18 +40,18 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
     <section className="py-[100px] scroll-mt-20 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/35" id="privadas">
       <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
         {/* Encabezado del apartado exclusivo */}
-        <div className="text-center mb-10 sm:mb-16">
-          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-500 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3 shadow-sm max-w-full text-left sm:text-center">
+        <div className="flex flex-col items-center text-center mb-10 sm:mb-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-500 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <i className="fas fa-lock text-xs shrink-0" />
-            <span className="truncate sm:overflow-visible sm:whitespace-normal">Apartado Exclusivo · Solo visible para ti como Super Admin</span>
+            <span>Apartado Exclusivo · Solo visible para ti como Super Admin</span>
           </div>
-          <h2 className="font-serif text-[clamp(1.75rem,4.5vw,2.8rem)] text-[var(--text-main)] font-bold relative inline-block after:block after:w-12 after:h-[2px] after:bg-amber-500 after:mx-auto after:mt-3">
+          <h2 className="font-serif text-[clamp(2rem,4.5vw,3rem)] text-[var(--text-main)] font-bold relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-12 after:h-[2px] after:bg-amber-500">
             Colección Privada & Crónicas
           </h2>
           <p className="text-xs sm:text-sm text-[var(--text-muted)] max-w-2xl mx-auto mt-4 leading-relaxed">
             Fotografías reservadas con descripciones narrativas amplias y detalles extendidos. Ningún visitante público sin credenciales de super admin puede ver este apartado.
           </p>
-          <span className="inline-block mt-2 text-[11px] font-semibold text-[var(--accent)] tracking-widest uppercase">
+          <span className="inline-block mt-3 text-[11px] font-semibold text-[var(--accent)] tracking-widest uppercase">
             {photos.length} fotografía{photos.length !== 1 ? 's' : ''} privada{photos.length !== 1 ? 's' : ''} registrada{photos.length !== 1 ? 's' : ''}
           </span>
         </div>
