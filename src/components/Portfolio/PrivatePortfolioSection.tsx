@@ -65,7 +65,7 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
             return (
               <article
                 key={photo.id}
-                className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:border-amber-500/40 transition-all duration-300 grid grid-cols-1 lg:grid-cols-12"
+                className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:border-amber-500/40 hover:-translate-y-1 hover:shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] grid grid-cols-1 lg:grid-cols-12 group/card"
               >
                 {/* Columna de la Foto (Click para abrir visor completo) */}
                 <div
@@ -162,7 +162,7 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
                     <button
                       type="button"
                       onClick={() => onOpenImage(index, photos)}
-                      className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] hover:border-[var(--accent)] text-[var(--text-main)] hover:text-[var(--accent)] rounded-xl text-xs font-semibold transition-colors cursor-pointer w-full sm:w-auto"
+                      className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] hover:border-[var(--accent)] text-[var(--text-main)] hover:text-[var(--accent)] active:scale-95 rounded-xl text-xs font-semibold transition-all duration-250 cursor-pointer w-full sm:w-auto shadow-sm"
                     >
                       <i className="fas fa-expand text-xs text-[var(--accent)]" />
                       <span>Ver en pantalla completa</span>
@@ -171,7 +171,7 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
                     <div className="flex items-center justify-end sm:justify-start gap-2">
                       <a
                         href="/admin/photos"
-                        className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer flex-1 sm:flex-initial"
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white active:scale-95 rounded-xl text-xs font-semibold transition-all duration-250 cursor-pointer flex-1 sm:flex-initial shadow-sm"
                         title="Editar esta foto en el panel"
                       >
                         <i className="fas fa-pen-to-square text-xs" />
@@ -182,7 +182,7 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
                         <button
                           type="button"
                           onClick={() => onDownload(photo)}
-                          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500/15 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer flex-1 sm:flex-initial"
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500/15 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-white active:scale-95 rounded-xl text-xs font-semibold transition-all duration-250 cursor-pointer flex-1 sm:flex-initial shadow-sm"
                           title="Descargar fotografía"
                         >
                           <i className="fas fa-download text-xs" />

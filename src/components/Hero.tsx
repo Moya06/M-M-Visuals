@@ -58,26 +58,26 @@ export function Hero() {
       )}
 
       <div className="relative z-10 max-w-[820px] px-4 sm:px-5 py-4">
-        <p className="animate-fade-up [animation-delay:200ms] text-[11px] sm:text-[13px] tracking-[3px] sm:tracking-[4px] uppercase text-[#e8c872] font-semibold mb-4 sm:mb-5 opacity-0 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+        <p className="animate-fade-up [animation-delay:200ms] text-[11px] sm:text-[13px] tracking-[3px] sm:tracking-[4px] uppercase text-[#e8c872] font-semibold mb-4 sm:mb-5 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
           M&M Visuals · Fotografía
         </p>
-        <h1 className="animate-fade-up [animation-delay:400ms] font-serif text-[clamp(2.1rem,7vw,5.5rem)] font-bold leading-[1.1] mb-5 sm:mb-6 opacity-0 text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]">
+        <h1 className="animate-fade-up [animation-delay:400ms] font-serif text-[clamp(2.1rem,7vw,5.5rem)] font-bold leading-[1.1] mb-5 sm:mb-6 text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]">
           Cada imagen<br />
           cuenta una <span className="text-[#e8c872] italic drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)]">historia</span>
         </h1>
-        <p className="animate-fade-up [animation-delay:600ms] text-[clamp(0.92rem,1.4vw,1.18rem)] text-white/95 mb-7 sm:mb-8 max-w-[580px] mx-auto opacity-0 leading-relaxed font-medium drop-shadow-[0_2px_14px_rgba(0,0,0,0.9)]">
+        <p className="animate-fade-up [animation-delay:600ms] text-[clamp(0.92rem,1.4vw,1.18rem)] text-white/95 mb-7 sm:mb-8 max-w-[580px] mx-auto leading-relaxed font-medium drop-shadow-[0_2px_14px_rgba(0,0,0,0.9)]">
           Capturando momentos con autenticidad y elegancia. Cada disparo es una oportunidad para inmortalizar lo irrepetible.
         </p>
         <a
           href="#portfolio"
-          className="animate-fade-up [animation-delay:800ms] inline-flex items-center gap-2.5 px-7 sm:px-9 py-3 sm:py-3.5 rounded-full bg-[var(--accent)] text-white no-underline font-semibold text-xs sm:text-sm tracking-[1px] uppercase transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_35px_rgba(201,168,76,0.45)] hover:bg-[var(--accent-hover)] opacity-0 shadow-[0_10px_25px_rgba(0,0,0,0.4)]"
+          className="animate-fade-up [animation-delay:800ms] inline-flex items-center gap-2.5 px-7 sm:px-9 py-3 sm:py-3.5 rounded-full bg-[var(--accent)] text-white no-underline font-semibold text-xs sm:text-sm tracking-[1px] uppercase transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_35px_rgba(201,168,76,0.45)] active:translate-y-0 active:scale-95 hover:bg-[var(--accent-hover)] shadow-[0_10px_25px_rgba(0,0,0,0.4)] cursor-pointer"
         >
-          Ver mi trabajo <i className="fas fa-arrow-right" />
+          Ver mi trabajo <i className="fas fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1" />
         </a>
       </div>
 
       <div
-        className={`animate-fade-up [animation-delay:1200ms] absolute bottom-8 left-1/2 -translate-x-1/2 z-10 hidden [@media(min-height:650px)]:flex flex-col items-center gap-2 opacity-0 transition-all duration-300 ${
+        className={`animate-fade-up [animation-delay:1200ms] absolute bottom-8 left-1/2 -translate-x-1/2 z-10 hidden [@media(min-height:650px)]:flex flex-col items-center gap-2 transition-all duration-300 ${
           theme === 'light'
             ? 'text-[#2e2924]'
             : 'text-neutral-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]'

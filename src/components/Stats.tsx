@@ -34,8 +34,8 @@ export function Stats({ photosCount }: Props) {
       <div className="max-w-[800px] mx-auto px-4 sm:px-6">
         <div
           ref={ref}
-          className={`grid grid-cols-3 gap-2 sm:gap-6 md:gap-10 text-center transition-all duration-800 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[50px]'
+          className={`grid grid-cols-3 gap-2 sm:gap-6 md:gap-10 text-center transition-all duration-700 ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
           {stats.map((s) => (

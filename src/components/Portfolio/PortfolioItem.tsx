@@ -18,6 +18,13 @@ export function PortfolioItem({ image, index, onOpen }: Props) {
       setIsVisible(true)
       return
     }
+
+    const rect = el.getBoundingClientRect()
+    if (rect.top < window.innerHeight + 100 && rect.bottom > -100) {
+      setIsVisible(true)
+      return
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -25,7 +32,7 @@ export function PortfolioItem({ image, index, onOpen }: Props) {
           observer.unobserve(entry.target)
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.02, rootMargin: '120px 0px 120px 0px' }
     )
     observer.observe(el)
     return () => observer.disconnect()
@@ -34,8 +41,8 @@ export function PortfolioItem({ image, index, onOpen }: Props) {
   return (
     <div
       ref={ref}
-      className={`relative cursor-pointer bg-[#1a1a1a] break-inside-avoid mb-6 rounded-xl overflow-hidden transition-all duration-600 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] group ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-      style={{ transitionDelay: `${index * 50}ms` }}
+      className={`relative cursor-pointer bg-[#1a1a1a] break-inside-avoid mb-6 rounded-xl overflow-hidden transition-all duration-500 ease-out hover:-translate-y-1.5 hover:shadow-[0_20px_45px_rgba(0,0,0,0.35)] group ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+      style={{ transitionDelay: `${(index % 4) * 70}ms` }}
       onClick={() => onOpen(index)}
     >
       <img

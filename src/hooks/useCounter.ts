@@ -7,7 +7,14 @@ export function useCounter(target: number, duration = 1200) {
 
   useEffect(() => {
     const el = ref.current
-    if (!el || !('IntersectionObserver' in window)) {
+    if (!el) return
+    if (!('IntersectionObserver' in window)) {
+      setVisible(true)
+      return
+    }
+
+    const rect = el.getBoundingClientRect()
+    if (rect.top < window.innerHeight + 50 && rect.bottom > -50) {
       setVisible(true)
       return
     }
@@ -19,7 +26,7 @@ export function useCounter(target: number, duration = 1200) {
           observer.unobserve(el)
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.1, rootMargin: '40px 0px 40px 0px' }
     )
 
     observer.observe(el)

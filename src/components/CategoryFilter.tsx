@@ -27,10 +27,10 @@ export function CategoryFilter({ categories, activeId, onSelect }: Props) {
       <div className="flex flex-wrap justify-center gap-2 sm:gap-2.5">
         <button
           onClick={() => onSelect(null)}
-          className={`px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs tracking-[1px] sm:tracking-[2px] uppercase font-semibold transition-all duration-300 border cursor-pointer ${
+          className={`px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs tracking-[1px] sm:tracking-[2px] uppercase font-semibold transition-all duration-300 border cursor-pointer active:scale-95 ${
             activeId === null
-              ? 'bg-[var(--accent)] border-[var(--accent)] text-white shadow-sm'
-              : 'bg-transparent border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
+              ? 'bg-[var(--accent)] border-[var(--accent)] text-white shadow-md scale-105'
+              : 'bg-transparent border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/5'
           }`}
         >
           Todas
@@ -41,10 +41,10 @@ export function CategoryFilter({ categories, activeId, onSelect }: Props) {
             <button
               key={cat.id}
               onClick={() => onSelect(cat.id)}
-              className={`px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs tracking-[1px] sm:tracking-[2px] uppercase font-semibold transition-all duration-300 border cursor-pointer ${
+              className={`px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs tracking-[1px] sm:tracking-[2px] uppercase font-semibold transition-all duration-300 border cursor-pointer active:scale-95 ${
                 isSelected
-                  ? 'bg-[var(--accent)] border-[var(--accent)] text-white shadow-sm'
-                  : 'bg-transparent border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
+                  ? 'bg-[var(--accent)] border-[var(--accent)] text-white shadow-md scale-105'
+                  : 'bg-transparent border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/5'
               }`}
             >
               {cat.name}
@@ -55,12 +55,12 @@ export function CategoryFilter({ categories, activeId, onSelect }: Props) {
 
       {/* Nivel 2: Subcategorías (si la categoría activa tiene hijas) */}
       {activeSubcategories.length > 0 && (
-        <div className="flex flex-wrap justify-center items-center gap-2 pt-1">
+        <div className="flex flex-wrap justify-center items-center gap-2 pt-1 animate-fade-in">
           <button
             onClick={() => onSelect(activeParentId)}
-            className={`px-3.5 py-1 rounded-full text-[11px] tracking-[1px] uppercase transition-all duration-200 border cursor-pointer ${
+            className={`px-3.5 py-1 rounded-full text-[11px] tracking-[1px] uppercase transition-all duration-200 border cursor-pointer active:scale-95 ${
               activeId === activeParentId
-                ? 'bg-[var(--accent)]/20 border-[var(--accent)] text-[var(--accent)] font-bold'
+                ? 'bg-[var(--accent)]/20 border-[var(--accent)] text-[var(--accent)] font-bold shadow-sm'
                 : 'bg-[var(--bg-card)] border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--text-main)]'
             }`}
           >
@@ -70,9 +70,9 @@ export function CategoryFilter({ categories, activeId, onSelect }: Props) {
             <button
               key={sub.id}
               onClick={() => onSelect(sub.id)}
-              className={`px-3.5 py-1 rounded-full text-[11px] tracking-[1px] uppercase transition-all duration-200 border cursor-pointer ${
+              className={`px-3.5 py-1 rounded-full text-[11px] tracking-[1px] uppercase transition-all duration-200 border cursor-pointer active:scale-95 ${
                 activeId === sub.id
-                  ? 'bg-[var(--accent)] border-[var(--accent)] text-white font-bold shadow-sm'
+                  ? 'bg-[var(--accent)] border-[var(--accent)] text-white font-bold shadow-sm scale-105'
                   : 'bg-[var(--bg-card)] border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--text-main)]'
               }`}
             >

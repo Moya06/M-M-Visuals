@@ -10,11 +10,11 @@ export function About() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 md:gap-20 items-center">
           <div
             ref={leftRef}
-            className={`rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] relative transition-all duration-800 border border-[var(--border-color)] ${leftVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-[50px]'}`}
+            className={`rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] relative transition-all duration-700 ease-out border border-[var(--border-color)] ${leftVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             <img src="fotos/fotografo.jpeg" alt="Sobre Mí" className="w-full h-auto block scale-[1.01]" width={600} height={400} loading="lazy" decoding="async" />
           </div>
-          <div ref={rightRef} className={`transition-all duration-800 ${rightVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-[50px]'}`}>
+          <div ref={rightRef} className={`transition-all duration-700 ease-out ${rightVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <h2 className="font-serif text-[clamp(1.8rem,3vw,2.5rem)] mb-4 sm:mb-6 text-[var(--text-main)] font-bold">
               Detrás del <span className="text-[var(--accent)] italic">lente</span>
             </h2>
