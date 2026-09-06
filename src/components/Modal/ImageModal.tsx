@@ -570,9 +570,9 @@ export function ImageModal({
           {showInfo && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className={`absolute z-50 p-4 sm:p-5 rounded-2xl backdrop-blur-3xl shadow-[0_10px_40px_rgba(0,0,0,0.4)] animate-[fadeIn_0.2s_ease-out] overflow-y-auto max-h-[60vh] sm:max-h-[72vh] ${
+              className={`absolute z-50 p-3.5 sm:p-5 rounded-2xl backdrop-blur-3xl shadow-[0_10px_40px_rgba(0,0,0,0.4)] animate-[fadeIn_0.2s_ease-out] overflow-y-auto max-h-[58vh] sm:max-h-[70vh] ${
                 isImageVertical
-                  ? 'bottom-[2px] left-1/2 -translate-x-1/2 w-[calc(100%-16px)] sm:w-auto max-w-[calc(100vw-24px)] sm:max-w-md'
+                  ? 'bottom-[2px] left-1/2 -translate-x-1/2 w-[calc(100%-16px)] min-w-[min(280px,calc(100vw-24px))] max-w-[540px]'
                   : 'bottom-[4px] right-[4px] w-[calc(100%-16px)] sm:w-auto max-w-[calc(100vw-24px)] sm:max-w-md'
               } ${
                 isLight
@@ -592,16 +592,16 @@ export function ImageModal({
                   <i className="fas fa-times" />
                 </button>
               </div>
-              <h4 className="font-serif text-sm md:text-base font-bold mb-1.5">{displayTitle}</h4>
-              <p className={`text-[11px] md:text-xs leading-relaxed mb-3 whitespace-pre-line ${isLight ? 'text-[#746b62]' : 'text-white/80'
+              <h4 className="font-serif text-sm sm:text-base font-bold mb-1.5">{displayTitle}</h4>
+              <p className={`text-[11px] sm:text-xs leading-relaxed mb-3 whitespace-pre-line ${isLight ? 'text-[#746b62]' : 'text-white/80'
                 }`}>
                 {currentImage.description?.trim() || 'Fotografía profesional en alta resolución de M&M Visuals.'}
               </p>
-              <div className={`text-[10px] md:text-[11px] flex flex-col gap-1.5 border-t pt-2.5 ${isLight ? 'text-[#746b62] border-black/10' : 'text-white/50 border-white/10'}`}>
+              <div className={`text-[10px] sm:text-[11px] flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t pt-2.5 ${isLight ? 'text-[#746b62] border-black/10' : 'text-white/50 border-white/10'}`}>
                 {currentImage.is_private && (
-                  <div className="flex items-center gap-1.5 text-amber-500 font-semibold bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg w-fit">
-                    <i className="fas fa-lock text-[10px]" />
-                    <span>Fotografía Privada (visible solo para admin)</span>
+                  <div className="flex items-center gap-1.5 text-amber-500 font-semibold bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-lg w-fit">
+                    <i className="fas fa-lock text-[9px]" />
+                    <span>Fotografía Privada (solo admin)</span>
                   </div>
                 )}
                 {currentImage.categoryName && (
