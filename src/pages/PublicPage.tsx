@@ -7,6 +7,7 @@ import { Header } from '../components/Header'
 import { Hero } from '../components/Hero'
 import { Stats } from '../components/Stats'
 import { PortfolioGrid } from '../components/Portfolio/PortfolioGrid'
+import { PrivatePortfolioSection } from '../components/Portfolio/PrivatePortfolioSection'
 import { ImageModal } from '../components/Modal/ImageModal'
 import { About } from '../components/About'
 import { Footer } from '../components/Footer'
@@ -19,9 +20,9 @@ export function PublicPage() {
   const { photos: allPhotos, loading: photosLoading } = usePhotos()
   const { categories } = useCategories()
 
-  // Privado solo lo ve quien tenga la sesión de admin activa.
-  // Público lo ve cualquier persona que entre al link.
-  const photos = isAdmin ? allPhotos : allPhotos.filter((p) => !p.is_private)
+  // Separar fotografías públicas y privadas
+  const publicPhotos = allPhotos.filter((p) => !p.is_private)
+  const privatePhotos = allPhotos.filter((p) => Boolean(p.is_private))
 
   // Adaptar foto a ImageData para el visor con todos sus metadatos
   const mapPhotoToImageData = (p: Photo): ImageData => ({
@@ -36,7 +37,7 @@ export function PublicPage() {
     is_private: p.is_private,
   })
 
-  const initialImages: ImageData[] = photos.map(mapPhotoToImageData)
+  const initialImages: ImageData[] = (isAdmin ? allPhotos : publicPhotos).map(mapPhotoToImageData)
   const modal = useImageModal(initialImages)
 
   const handleOpenImage = (index: number, currentList: Photo[]) => {
@@ -53,13 +54,24 @@ export function PublicPage() {
       />
       <Header />
       <Hero />
-      <Stats photosCount={photos.length} />
+      <Stats photosCount={isAdmin ? allPhotos.length : publicPhotos.length} />
+      
+      {/* Galería Pública Principal */}
       <PortfolioGrid
-        photos={photos}
+        photos={publicPhotos}
         categories={categories}
         loading={photosLoading}
         onOpenImage={handleOpenImage}
       />
+
+      {/* Apartado Diferente Exclusivo para Fotos Privadas (Solo visible con sesión de Admin) */}
+      {isAdmin && (
+        <PrivatePortfolioSection
+          photos={privatePhotos}
+          onOpenImage={handleOpenImage}
+        />
+      )}
+
       <ImageModal
         isOpen={modal.isOpen}
         currentImage={modal.currentImage}

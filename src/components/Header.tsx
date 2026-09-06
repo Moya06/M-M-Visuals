@@ -1,18 +1,22 @@
 import { useHeaderScroll } from '../hooks/useHeaderScroll'
 import { useActiveSection } from '../hooks/useActiveSection'
 import { useTheme } from '../context/ThemeContext'
+import { useAuthContext } from '../context/AuthContext'
 import { Logo } from './Logo'
 
-const navLinks = [
-  { href: '#inicio', label: 'Inicio' },
-  { href: '#portfolio', label: 'Portafolio' },
-  { href: '#sobre-mi', label: 'Sobre Mí' },
-]
-
 export function Header() {
+  const { session, user } = useAuthContext()
+  const isAdmin = Boolean(session || user)
   const { scrolled, hidden } = useHeaderScroll()
-  const active = useActiveSection(['inicio', 'portfolio', 'sobre-mi'])
+  const active = useActiveSection(['inicio', 'portfolio', 'privadas', 'sobre-mi'])
   const { theme, toggleTheme } = useTheme()
+
+  const navLinks = [
+    { href: '#inicio', label: 'Inicio' },
+    { href: '#portfolio', label: 'Portafolio' },
+    ...(isAdmin ? [{ href: '#privadas', label: '🔒 Privadas' }] : []),
+    { href: '#sobre-mi', label: 'Sobre Mí' },
+  ]
 
   return (
     <header

@@ -549,7 +549,7 @@ export function ImageModal({
           {showInfo && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className={`absolute bottom-2 left-2 right-2 md:bottom-6 md:left-auto md:right-6 w-auto md:max-w-sm z-50 p-4 shrink-0 rounded-2xl backdrop-blur-3xl shadow-[0_10px_40px_rgba(0,0,0,0.4)] animate-[fadeUp_0.2s_ease-out] ${isLight
+              className={`absolute bottom-2 left-2 right-2 md:bottom-6 md:left-auto md:right-6 w-auto md:max-w-md max-h-[75vh] overflow-y-auto z-50 p-4 sm:p-5 shrink-0 rounded-2xl backdrop-blur-3xl shadow-[0_10px_40px_rgba(0,0,0,0.4)] animate-[fadeUp_0.2s_ease-out] ${isLight
                 ? 'bg-white/95 border border-[var(--border-color)] text-[#25201b]'
                 : 'bg-[#111111]/95 border border-white/15 text-white'
                 }`}
@@ -567,7 +567,7 @@ export function ImageModal({
                 </button>
               </div>
               <h4 className="font-serif text-sm md:text-base font-bold mb-1.5">{displayTitle}</h4>
-              <p className={`text-[11px] md:text-xs leading-relaxed mb-3 ${isLight ? 'text-[#746b62]' : 'text-white/80'
+              <p className={`text-[11px] md:text-xs leading-relaxed mb-3 whitespace-pre-line ${isLight ? 'text-[#746b62]' : 'text-white/80'
                 }`}>
                 {currentImage.description?.trim() || 'Fotografía profesional en alta resolución de M&M Visuals.'}
               </p>

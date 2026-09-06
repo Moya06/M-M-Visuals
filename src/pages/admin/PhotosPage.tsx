@@ -19,6 +19,7 @@ export function PhotosPage() {
   const [editDescription, setEditDescription] = useState('')
   const [editCategoryId, setEditCategoryId] = useState('')
   const [editIsPrivate, setEditIsPrivate] = useState(false)
+  const [filterTab, setFilterTab] = useState<'all' | 'public' | 'private'>('all')
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [downloadModalPhoto, setDownloadModalPhoto] = useState<Photo | null>(null)
   const [photoToDelete, setPhotoToDelete] = useState<Photo | null>(null)
@@ -167,12 +168,23 @@ export function PhotosPage() {
     setDeletingId(null)
   }
 
+  const publicCount = photos.filter((p) => !p.is_private).length
+  const privateCount = photos.filter((p) => Boolean(p.is_private)).length
+
+  const displayedPhotos = photos.filter((p) => {
+    if (filterTab === 'public') return !p.is_private
+    if (filterTab === 'private') return Boolean(p.is_private)
+    return true
+  })
+
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
         <div>
           <h1 className="text-xl sm:text-2xl font-serif text-[var(--text-main)] mb-1 font-bold">Fotos</h1>
-          <p className="text-[var(--text-muted)] text-xs sm:text-sm">{photos.length} foto{photos.length !== 1 ? 's' : ''} en el portafolio</p>
+          <p className="text-[var(--text-muted)] text-xs sm:text-sm">
+            {photos.length} foto{photos.length !== 1 ? 's' : ''} en total ({publicCount} pública{publicCount !== 1 ? 's' : ''}, {privateCount} privada{privateCount !== 1 ? 's' : ''})
+          </p>
         </div>
         <button
           onClick={() => setShowForm((v) => !v)}
@@ -190,19 +202,69 @@ export function PhotosPage() {
         </div>
       )}
 
+      {/* Pestañas de filtro de fotografías: Todas, Públicas, Privadas */}
+      <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-1">
+        <button
+          type="button"
+          onClick={() => setFilterTab('all')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
+            filterTab === 'all'
+              ? 'bg-[var(--accent)] text-white shadow-sm'
+              : 'bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)]'
+          }`}
+        >
+          <span>Todas</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-black/20 text-white font-mono">{photos.length}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setFilterTab('public')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
+            filterTab === 'public'
+              ? 'bg-emerald-600 text-white shadow-sm'
+              : 'bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)]'
+          }`}
+        >
+          <i className="fas fa-globe text-[11px]" />
+          <span>Públicas</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-black/20 text-white font-mono">{publicCount}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setFilterTab('private')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
+            filterTab === 'private'
+              ? 'bg-amber-500 text-black font-bold shadow-sm'
+              : 'bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)]'
+          }`}
+        >
+          <i className="fas fa-lock text-[11px]" />
+          <span>Privadas (con descripción amplia)</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-black/20 font-mono">{privateCount}</span>
+        </button>
+      </div>
+
       {/* Grid de fotos */}
       {loading ? (
         <div className="flex justify-center py-20">
           <div className="w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : photos.length === 0 ? (
-        <div className="text-center py-20 text-[var(--text-muted)]">
+      ) : displayedPhotos.length === 0 ? (
+        <div className="text-center py-20 text-[var(--text-muted)] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-8">
           <i className="fas fa-images text-4xl mb-4 block text-[var(--text-muted)]/50" />
-          <p className="text-sm">Aún no hay fotos. Sube la primera.</p>
+          <p className="text-sm font-medium">
+            {filterTab === 'private'
+              ? 'No tienes fotografías privadas aún. Puedes editar cualquier foto o subir una nueva y marcarla como "Privada".'
+              : filterTab === 'public'
+              ? 'No hay fotos públicas disponibles.'
+              : 'Aún no hay fotos. Sube la primera.'}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
-          {photos.map((photo) => (
+          {displayedPhotos.map((photo) => (
             <div
               key={photo.id}
               className="group flex flex-col bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden shadow-sm hover:border-[var(--accent)]/60 transition-all duration-200"
@@ -252,6 +314,13 @@ export function PhotosPage() {
                     {photo.category ? photo.category.name : 'General'}
                     {photo.width && photo.height ? ` · ${photo.width}×${photo.height}` : ''}
                   </p>
+
+                  {/* Extracto de descripción (especialmente útil para fotos con descripción amplia) */}
+                  {photo.description && (
+                    <p className="text-[11px] text-[var(--text-muted)] line-clamp-2 mt-1.5 leading-snug italic">
+                      "{photo.description}"
+                    </p>
+                  )}
                 </div>
 
                 {/* Barra de botones de acción organizada en 2 filas limpias para evitar recortes */}
@@ -396,9 +465,11 @@ export function PhotosPage() {
                 <span className="block text-[10px] uppercase tracking-[1px] text-[var(--text-muted)] font-semibold mb-0.5">
                   Descripción
                 </span>
-                <p className="text-[var(--text-muted)] bg-[var(--bg-primary)] p-3 rounded-xl border border-[var(--border-color)] leading-relaxed">
-                  {selectedPhoto.description?.trim() || 'Sin descripción registrada para esta fotografía.'}
-                </p>
+                <div className="text-[var(--text-main)]/90 bg-[var(--bg-primary)] p-4 rounded-xl border border-[var(--border-color)] leading-relaxed text-xs sm:text-sm max-h-64 overflow-y-auto whitespace-pre-line">
+                  {selectedPhoto.description?.trim() || (
+                    <span className="italic text-[var(--text-muted)]">Sin descripción registrada para esta fotografía.</span>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 pt-1">
