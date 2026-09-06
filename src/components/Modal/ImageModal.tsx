@@ -85,6 +85,24 @@ export function ImageModal({
     }
   }, [currentImage?.src, currentImage?.width, currentImage?.height])
 
+  const [isClosing, setIsClosing] = useState(false)
+
+  const handleClose = useCallback(() => {
+    if (isClosing) return
+    setIsClosing(true)
+    setTimeout(() => {
+      onClose()
+      setIsClosing(false)
+    }, 220)
+  }, [isClosing, onClose])
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsClosing(false)
+      setImageLoaded(false)
+    }
+  }, [isOpen, currentImage?.src])
+
   const [showControls, setShowControls] = useState(true)
   const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -221,7 +239,7 @@ export function ImageModal({
   // Atajos de teclado profesionales
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') handleClose()
       else if (e.key === 'ArrowLeft') onNavigate(-1)
       else if (e.key === 'ArrowRight') onNavigate(1)
       else if (e.key === '+' || e.key === '=') onZoomIn()
@@ -232,7 +250,7 @@ export function ImageModal({
       else if (e.key === 't' || e.key === 'T') onToggleThumbnails()
       else if ((e.key === 'd' || e.key === 'D') && isAuthenticated) executeDownload('auto')
     },
-    [onClose, onNavigate, onZoomIn, onZoomOut, onResetZoom, onToggleFullscreen, onToggleInfo, onToggleThumbnails, isAuthenticated, executeDownload]
+    [handleClose, onNavigate, onZoomIn, onZoomOut, onResetZoom, onToggleFullscreen, onToggleInfo, onToggleThumbnails, isAuthenticated, executeDownload]
   )
 
   useEffect(() => {
@@ -296,7 +314,7 @@ export function ImageModal({
           if (deltaX < 0) onNavigate(1)
           else onNavigate(-1)
         } else if (deltaY > 60 && Math.abs(deltaX) < 100) {
-          onClose()
+          handleClose()
         }
       }
     }
@@ -314,22 +332,32 @@ export function ImageModal({
       className="fixed inset-0 z-[2000] flex flex-col select-none overflow-hidden"
       onMouseMove={resetControlsTimer}
     >
-      {/* Fondo cinematográfico adaptativo con desenfoque de cristal */}
+      {/* Fondo cinematográfico adaptativo con desenfoque de cristal y transición suave */}
       <div
-        className={`absolute inset-0 transition-all duration-300 ${isLight
-          ? 'bg-[#f7f4ed]/97 backdrop-blur-2xl'
-          : 'bg-[#070707]/94 backdrop-blur-2xl'
-          }`}
+        className={`absolute inset-0 transition-colors duration-300 ${
+          isClosing
+            ? 'animate-[modalBackdropOut_0.22s_ease-in_both]'
+            : 'animate-[modalBackdropIn_0.35s_cubic-bezier(0.16,1,0.3,1)_both]'
+        } ${
+          isLight
+            ? 'bg-[#f7f4ed]/97 backdrop-blur-2xl'
+            : 'bg-[#070707]/94 backdrop-blur-2xl'
+        }`}
         onClick={() => {
           if (scale > 1) onResetZoom()
-          else onClose()
+          else handleClose()
         }}
       />
 
       {/* ── BARRA SUPERIOR (HEADER ESTUDIO) ── */}
       <header
-        className={`relative z-20 w-full px-3 md:px-5 py-3 md:py-3.5 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 transition-all duration-300 ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
-          }`}
+        className={`relative z-20 w-full px-3 md:px-5 py-3 md:py-3.5 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 transition-all duration-300 ${
+          isClosing
+            ? 'opacity-0 -translate-y-4'
+            : showControls
+              ? 'opacity-100 translate-y-0 animate-[modalHeaderIn_0.35s_cubic-bezier(0.16,1,0.3,1)_both]'
+              : 'opacity-0 -translate-y-4 pointer-events-none'
+        }`}
       >
         {/* Lado izquierdo: Título, categoría y contador */}
         <div className="flex items-center gap-3.5 min-w-0 justify-center md:justify-start w-full md:w-auto">
@@ -473,7 +501,7 @@ export function ImageModal({
 
           {/* Cerrar */}
           <button
-            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            onClick={(e) => { e.stopPropagation(); handleClose(); }}
             aria-label="Cerrar visor"
             title="Cerrar (Esc)"
             className={`w-11 h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${isLight
@@ -532,12 +560,19 @@ export function ImageModal({
           <i className="fas fa-chevron-right text-base" />
         </button>
 
-        {/* Contenedor y Foto (ajustado con precisión milimétrica a los bordes reales de la imagen) */}
-        <div className="relative inline-flex items-center justify-center max-w-[92vw] max-h-[78vh]">
-          {/* Spinner de carga si es imagen pesada */}
+        {/* Contenedor y Foto (con entrada cinematográfica fluida, escalado suave y sin saltos) */}
+        <div
+          key={currentImage.src}
+          className={`relative inline-flex items-center justify-center max-w-[92vw] max-h-[78vh] ${
+            isClosing
+              ? 'animate-[modalImageOut_0.22s_ease-in_both]'
+              : 'animate-[modalImageIn_0.38s_cubic-bezier(0.16,1,0.3,1)_both]'
+          }`}
+        >
+          {/* Spinner de carga sutil si la imagen tarda */}
           {!imageLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center z-0">
-              <div className="w-10 h-10 border-3 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
+              <div className="w-9 h-9 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
             </div>
           )}
 
@@ -553,13 +588,13 @@ export function ImageModal({
               }
             }}
             onDoubleClick={onToggleZoom}
-            className={`block max-w-[92vw] max-h-[78vh] w-auto h-auto object-contain rounded-xl select-none transition-transform ${
-              isDragging.current ? 'duration-0' : 'duration-200'
-            } ease-out ${imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} ${
+            className={`block max-w-[92vw] max-h-[78vh] w-auto h-auto object-contain rounded-xl select-none transition-all ${
+              isDragging.current ? 'duration-0' : 'duration-300'
+            } ease-out ${imageLoaded ? 'opacity-100' : 'opacity-90'} ${
               isLight
                 ? 'shadow-[0_20px_70px_rgba(0,0,0,0.18)]'
                 : 'shadow-[0_25px_80px_rgba(0,0,0,0.8)]'
-            } transition-opacity`}
+            }`}
             style={{
               transform: `scale(${scale}) translate(${pan.x}px, ${pan.y}px)`,
               cursor: scale > 1 ? (isDragging.current ? 'grabbing' : 'grab') : 'zoom-in',
@@ -625,8 +660,13 @@ export function ImageModal({
       {/* ── BARRA INFERIOR (FILMSTRIP / TIRA DE MINIATURAS) ── */}
       {showThumbnails && images.length > 1 && (
         <footer
-          className={`relative z-20 w-full pb-4 px-4 transition-all duration-300 ${showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
-            }`}
+          className={`relative z-20 w-full pb-4 px-4 transition-all duration-300 ${
+            isClosing
+              ? 'opacity-0 translate-y-4'
+              : showControls
+                ? 'opacity-100 translate-y-0 animate-[modalThumbnailsIn_0.35s_cubic-bezier(0.16,1,0.3,1)_both]'
+                : 'opacity-0 translate-y-4 pointer-events-none'
+          }`}
         >
           <div className={`max-w-4xl mx-auto p-2 rounded-2xl backdrop-blur-2xl transition-colors ${isLight
             ? 'bg-black/[0.05] border border-black/10 shadow-[0_10px_35px_rgba(0,0,0,0.08)]'
