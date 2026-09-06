@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
+import { createPortal } from 'react-dom'
 import imageCompression from 'browser-image-compression'
 import type { ImageData } from '../../types'
 import { useTheme } from '../../context/ThemeContext'
@@ -327,17 +328,17 @@ export function ImageModal({
   const displayCategory = currentImage.categoryName?.trim()
   const zoomPercentage = Math.round(scale * 100)
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[2000] flex flex-col select-none overflow-hidden"
+      className="fixed inset-0 z-[9999] flex flex-col select-none overflow-hidden"
       onMouseMove={resetControlsTimer}
     >
       {/* Fondo cinematográfico adaptativo con desenfoque de cristal y transición suave */}
       <div
         className={`absolute inset-0 transition-colors duration-300 ${
           isClosing
-            ? 'animate-[modalBackdropOut_0.22s_ease-in_both]'
-            : 'animate-[modalBackdropIn_0.35s_cubic-bezier(0.16,1,0.3,1)_both]'
+            ? 'modal-backdrop-exit'
+            : 'modal-backdrop-enter'
         } ${
           isLight
             ? 'bg-[#f7f4ed]/97 backdrop-blur-2xl'
@@ -355,7 +356,7 @@ export function ImageModal({
           isClosing
             ? 'opacity-0 -translate-y-4'
             : showControls
-              ? 'opacity-100 translate-y-0 animate-[modalHeaderIn_0.35s_cubic-bezier(0.16,1,0.3,1)_both]'
+              ? 'opacity-100 translate-y-0 modal-header-enter'
               : 'opacity-0 -translate-y-4 pointer-events-none'
         }`}
       >
@@ -565,8 +566,8 @@ export function ImageModal({
           key={currentImage.src}
           className={`relative inline-flex items-center justify-center max-w-[92vw] max-h-[78vh] ${
             isClosing
-              ? 'animate-[modalImageOut_0.22s_ease-in_both]'
-              : 'animate-[modalImageIn_0.38s_cubic-bezier(0.16,1,0.3,1)_both]'
+              ? 'modal-image-exit'
+              : 'modal-image-enter'
           }`}
         >
           {/* Spinner de carga sutil si la imagen tarda */}
@@ -590,7 +591,7 @@ export function ImageModal({
             onDoubleClick={onToggleZoom}
             className={`block max-w-[92vw] max-h-[78vh] w-auto h-auto object-contain rounded-xl select-none transition-all ${
               isDragging.current ? 'duration-0' : 'duration-300'
-            } ease-out ${imageLoaded ? 'opacity-100' : 'opacity-90'} ${
+            } ease-out opacity-100 ${
               isLight
                 ? 'shadow-[0_20px_70px_rgba(0,0,0,0.18)]'
                 : 'shadow-[0_25px_80px_rgba(0,0,0,0.8)]'
@@ -664,7 +665,7 @@ export function ImageModal({
             isClosing
               ? 'opacity-0 translate-y-4'
               : showControls
-                ? 'opacity-100 translate-y-0 animate-[modalThumbnailsIn_0.35s_cubic-bezier(0.16,1,0.3,1)_both]'
+                ? 'opacity-100 translate-y-0 modal-thumbnails-enter'
                 : 'opacity-0 translate-y-4 pointer-events-none'
           }`}
         >
@@ -780,7 +781,8 @@ export function ImageModal({
           </div>
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   )
 }
 

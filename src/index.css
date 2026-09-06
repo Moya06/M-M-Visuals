@@ -193,8 +193,32 @@ body { margin: 0; }
   animation: scaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.modal-backdrop-enter {
+  animation: modalBackdropIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.modal-backdrop-exit {
+  animation: modalBackdropOut 0.2s ease-in both;
+}
+
+.modal-image-enter {
+  animation: modalImageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.modal-image-exit {
+  animation: modalImageOut 0.2s ease-in both;
+}
+
+.modal-header-enter {
+  animation: modalHeaderIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.modal-thumbnails-enter {
+  animation: modalThumbnailsIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 .animate-page-enter {
-  animation: pageEnter 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: pageEnter 0.38s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Micro-interacciones suaves en botones y enlaces */
