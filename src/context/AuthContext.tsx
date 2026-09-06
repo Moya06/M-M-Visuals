@@ -4,6 +4,7 @@ import type { Session, User } from '@supabase/supabase-js'
 interface AuthContextValue {
   session: Session | null
   user: User | null
+  isSuperAdmin: boolean
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error: unknown }>
   signOut: () => Promise<void>

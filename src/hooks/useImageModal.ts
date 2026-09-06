@@ -11,10 +11,18 @@ export function useImageModal(initialImages: ImageData[] = []) {
   const [showInfo, setShowInfo] = useState(false)
   const [showThumbnails, setShowThumbnails] = useState(true)
 
-  // Sincronizar si cambia initialImages y no está abierto
+  // Sincronizar si cambia initialImages y no está abierto (con verificación para evitar ciclos infinitos)
   useEffect(() => {
     if (!isOpen && initialImages.length > 0) {
-      setImages(initialImages)
+      setImages((prev) => {
+        if (
+          prev.length === initialImages.length &&
+          prev.every((img, i) => img.src === initialImages[i]?.src && img.title === initialImages[i]?.title)
+        ) {
+          return prev
+        }
+        return initialImages
+      })
     }
   }, [initialImages, isOpen])
 

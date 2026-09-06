@@ -43,13 +43,13 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
         <div className="text-center mb-10 sm:mb-16">
           <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-500 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3 shadow-sm max-w-full text-left sm:text-center">
             <i className="fas fa-lock text-xs shrink-0" />
-            <span className="truncate sm:overflow-visible sm:whitespace-normal">Apartado Exclusivo · Solo visible para ti como Administrador</span>
+            <span className="truncate sm:overflow-visible sm:whitespace-normal">Apartado Exclusivo · Solo visible para ti como Super Admin</span>
           </div>
           <h2 className="font-serif text-[clamp(1.75rem,4.5vw,2.8rem)] text-[var(--text-main)] font-bold relative inline-block after:block after:w-12 after:h-[2px] after:bg-amber-500 after:mx-auto after:mt-3">
             Colección Privada & Crónicas
           </h2>
           <p className="text-xs sm:text-sm text-[var(--text-muted)] max-w-2xl mx-auto mt-4 leading-relaxed">
-            Fotografías reservadas con descripciones narrativas amplias y detalles extendidos. Ningún visitante público sin sesión de admin puede ver este apartado.
+            Fotografías reservadas con descripciones narrativas amplias y detalles extendidos. Ningún visitante público sin credenciales de super admin puede ver este apartado.
           </p>
           <span className="inline-block mt-2 text-[11px] font-semibold text-[var(--accent)] tracking-widest uppercase">
             {photos.length} fotografía{photos.length !== 1 ? 's' : ''} privada{photos.length !== 1 ? 's' : ''} registrada{photos.length !== 1 ? 's' : ''}

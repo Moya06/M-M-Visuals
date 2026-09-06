@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react'
 import { useAuthContext } from '../context/AuthContext'
 import { useImageModal } from '../hooks/useImageModal'
 import { useProgressBar } from '../hooks/useProgressBar'
@@ -15,17 +16,16 @@ import type { ImageData, Photo } from '../types'
 
 export function PublicPage() {
   const progress = useProgressBar()
-  const { session, user } = useAuthContext()
-  const isAdmin = Boolean(session || user)
+  const { isSuperAdmin } = useAuthContext()
   const { photos: allPhotos, loading: photosLoading } = usePhotos()
   const { categories } = useCategories()
 
   // Separar fotografías públicas y privadas
-  const publicPhotos = allPhotos.filter((p) => !p.is_private)
-  const privatePhotos = allPhotos.filter((p) => Boolean(p.is_private))
+  const publicPhotos = useMemo(() => allPhotos.filter((p) => !p.is_private), [allPhotos])
+  const privatePhotos = useMemo(() => allPhotos.filter((p) => Boolean(p.is_private)), [allPhotos])
 
   // Adaptar foto a ImageData para el visor con todos sus metadatos
-  const mapPhotoToImageData = (p: Photo): ImageData => ({
+  const mapPhotoToImageData = useCallback((p: Photo): ImageData => ({
     src: p.url,
     title: p.title,
     description: p.description,
@@ -35,15 +35,18 @@ export function PublicPage() {
     height: p.height,
     date: p.created_at,
     is_private: p.is_private,
-  })
+  }), [])
 
-  const initialImages: ImageData[] = (isAdmin ? allPhotos : publicPhotos).map(mapPhotoToImageData)
+  const initialImages: ImageData[] = useMemo(() => {
+    return (isSuperAdmin ? allPhotos : publicPhotos).map(mapPhotoToImageData)
+  }, [isSuperAdmin, allPhotos, publicPhotos, mapPhotoToImageData])
+
   const modal = useImageModal(initialImages)
 
-  const handleOpenImage = (index: number, currentList: Photo[]) => {
+  const handleOpenImage = useCallback((index: number, currentList: Photo[]) => {
     const list = currentList.map(mapPhotoToImageData)
     modal.open(index, list)
-  }
+  }, [mapPhotoToImageData, modal.open])
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans antialiased transition-colors duration-300">
@@ -54,7 +57,7 @@ export function PublicPage() {
       />
       <Header />
       <Hero />
-      <Stats photosCount={isAdmin ? allPhotos.length : publicPhotos.length} />
+      <Stats photosCount={isSuperAdmin ? allPhotos.length : publicPhotos.length} />
       
       {/* Galería Pública Principal */}
       <PortfolioGrid
@@ -64,8 +67,8 @@ export function PublicPage() {
         onOpenImage={handleOpenImage}
       />
 
-      {/* Apartado Diferente Exclusivo para Fotos Privadas (Solo visible con sesión de Admin) */}
-      {isAdmin && (
+      {/* Apartado Diferente Exclusivo para Fotos Privadas (Solo visible con sesión de Super Admin) */}
+      {isSuperAdmin && (
         <PrivatePortfolioSection
           photos={privatePhotos}
           onOpenImage={handleOpenImage}

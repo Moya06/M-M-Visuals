@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 export function useActiveSection(ids: string[]) {
   const [active, setActive] = useState(ids[0])
+  const idsKey = ids.join(',')
 
   useEffect(() => {
     function onScroll() {
@@ -21,7 +22,7 @@ export function useActiveSection(ids: string[]) {
 
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [ids])
+  }, [idsKey])
 
   return active
 }

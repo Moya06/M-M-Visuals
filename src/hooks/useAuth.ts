@@ -69,9 +69,9 @@ export function useAuth() {
         id: 'master-admin-fabian',
         email: `${MASTER_USER}@admin.local`,
         aud: 'authenticated',
-        role: 'authenticated',
-        app_metadata: {},
-        user_metadata: { name: 'Fabián Moya' },
+        role: 'super_admin',
+        app_metadata: { role: 'super_admin' },
+        user_metadata: { name: 'Fabián Moya', role: 'super_admin' },
         created_at: new Date().toISOString(),
       } as unknown as User
 
@@ -109,5 +109,17 @@ export function useAuth() {
     }
   }
 
-  return { session, user, loading, signIn, signOut }
+  const isSuperAdmin = Boolean(
+    (session || user) &&
+    (
+      user?.id === 'master-admin-fabian' ||
+      user?.email?.toLowerCase().includes('fabianmoya') ||
+      (user?.user_metadata as Record<string, unknown> | undefined)?.role === 'super_admin' ||
+      (user?.app_metadata as Record<string, unknown> | undefined)?.role === 'super_admin' ||
+      Boolean(localStorage.getItem('local_admin_session')) ||
+      (user as unknown as { role?: string } | null)?.role === 'super_admin'
+    )
+  )
+
+  return { session, user, isSuperAdmin, loading, signIn, signOut }
 }

@@ -5,16 +5,18 @@ import { useAuthContext } from '../context/AuthContext'
 import { Logo } from './Logo'
 
 export function Header() {
-  const { session, user } = useAuthContext()
-  const isAdmin = Boolean(session || user)
+  const { isSuperAdmin } = useAuthContext()
   const { scrolled, hidden } = useHeaderScroll()
-  const active = useActiveSection(['inicio', 'portfolio', 'privadas', 'sobre-mi'])
+  const activeSections = isSuperAdmin
+    ? ['inicio', 'portfolio', 'privadas', 'sobre-mi']
+    : ['inicio', 'portfolio', 'sobre-mi']
+  const active = useActiveSection(activeSections)
   const { theme, toggleTheme } = useTheme()
 
   const navLinks = [
     { href: '#inicio', label: 'Inicio' },
     { href: '#portfolio', label: 'Portafolio' },
-    ...(isAdmin ? [{ href: '#privadas', label: '🔒 Privadas' }] : []),
+    ...(isSuperAdmin ? [{ href: '#privadas', label: 'Privadas' }] : []),
     { href: '#sobre-mi', label: 'Sobre Mí' },
   ]
 
