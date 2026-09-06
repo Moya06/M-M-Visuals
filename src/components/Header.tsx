@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useHeaderScroll } from '../hooks/useHeaderScroll'
 import { useActiveSection } from '../hooks/useActiveSection'
 import { useTheme } from '../context/ThemeContext'
@@ -66,13 +67,13 @@ export function Header() {
                 </li>
               ))}
               <li>
-                <a
-                  href="/admin"
-                  className="text-[9.5px] sm:text-[10px] md:text-[11px] font-semibold tracking-[1px] sm:tracking-[1.5px] uppercase px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all duration-300 flex items-center gap-1 sm:gap-1.5"
+                <Link
+                  to="/admin"
+                  className="text-[9.5px] sm:text-[10px] md:text-[11px] font-semibold tracking-[1px] sm:tracking-[1.5px] uppercase px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--accent)] hover:text-[var(--accent)] active:scale-95 transition-all duration-300 flex items-center gap-1 sm:gap-1.5"
                 >
                   <i className="fas fa-lock text-[8px] sm:text-[9px] text-[var(--accent)]" />
                   Admin
-                </a>
+                </Link>
               </li>
             </ul>
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate, useLocation, Link } from 'react-router-dom'
 import { useAuthContext } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import { Logo } from '../../components/Logo'
@@ -30,11 +30,11 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] flex items-center justify-center px-4 relative transition-colors duration-300">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] flex items-center justify-center px-4 relative transition-colors duration-300 animate-fade-in">
       <button
         onClick={toggleTheme}
         aria-label="Cambiar tema"
-        className="absolute top-6 right-6 relative overflow-hidden w-10 h-10 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all shadow-sm"
+        className="absolute top-6 right-6 relative overflow-hidden w-10 h-10 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] active:scale-95 transition-all shadow-sm"
         title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}
       >
         <i
@@ -49,7 +49,7 @@ export function LoginPage() {
         />
       </button>
 
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm animate-fade-up">
         {/* Logo M&M Visuals */}
         <div className="text-center mb-8 flex flex-col items-center">
           <div className="w-44 h-44 flex items-center justify-center mb-4">
@@ -105,6 +105,16 @@ export function LoginPage() {
         <p className="text-center text-[var(--text-muted)] text-xs mt-6">
           Acceso exclusivo para administrador · M&M Visuals
         </p>
+
+        <div className="text-center mt-3">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--accent)] active:scale-95 transition-all py-1.5 px-3 rounded-lg hover:bg-[var(--border-color)]/20"
+          >
+            <i className="fas fa-arrow-left text-[11px]" />
+            <span>Volver al portafolio web</span>
+          </Link>
+        </div>
       </div>
     </div>
   )

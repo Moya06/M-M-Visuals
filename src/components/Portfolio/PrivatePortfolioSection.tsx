@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { Photo } from '../../types'
 
 interface Props {
@@ -24,13 +25,13 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
           <p className="text-sm text-[var(--text-muted)] max-w-md mx-auto">
             Aún no tienes fotos marcadas como privadas. Puedes marcar fotos como privadas desde el panel de administración para que aparezcan aquí con sus descripciones amplias.
           </p>
-          <a
-            href="/admin/photos"
-            className="inline-flex items-center gap-2 mt-6 px-5 py-2.5 bg-[var(--accent)] text-white rounded-xl text-xs font-semibold hover:bg-[var(--accent-hover)] transition-colors shadow-sm"
+          <Link
+            to="/admin/photos"
+            className="inline-flex items-center gap-2 mt-6 px-5 py-2.5 bg-[var(--accent)] text-white rounded-xl text-xs font-semibold hover:bg-[var(--accent-hover)] transition-all active:scale-95 shadow-sm"
           >
             <i className="fas fa-images" />
             <span>Gestionar fotos en Admin</span>
-          </a>
+          </Link>
         </div>
       </section>
     )
@@ -169,14 +170,14 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
                     </button>
 
                     <div className="flex items-center justify-end sm:justify-start gap-2">
-                      <a
-                        href="/admin/photos"
+                      <Link
+                        to="/admin/photos"
                         className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white active:scale-95 rounded-xl text-xs font-semibold transition-all duration-250 cursor-pointer flex-1 sm:flex-initial shadow-sm"
                         title="Editar esta foto en el panel"
                       >
                         <i className="fas fa-pen-to-square text-xs" />
                         <span>Editar en Admin</span>
-                      </a>
+                      </Link>
 
                       {onDownload && (
                         <button

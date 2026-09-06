@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Logo } from './Logo'
 
 export function Footer() {
@@ -33,7 +34,21 @@ export function Footer() {
                 { href: '/admin', label: 'Panel CMS' },
               ].map((link) => (
                 <li key={link.href} className="mb-2.5">
-                  <a href={link.href} className="text-[var(--text-muted)] no-underline text-sm transition-colors duration-300 hover:text-[var(--accent)]">{link.label}</a>
+                  {link.href.startsWith('/') ? (
+                    <Link
+                      to={link.href}
+                      className="text-[var(--text-muted)] no-underline text-sm transition-colors duration-300 hover:text-[var(--accent)] active:scale-95 inline-block"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      className="text-[var(--text-muted)] no-underline text-sm transition-colors duration-300 hover:text-[var(--accent)] active:scale-95 inline-block"
+                    >
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

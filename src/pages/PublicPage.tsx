@@ -49,7 +49,7 @@ export function PublicPage() {
   }, [mapPhotoToImageData, modal.open])
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans antialiased transition-colors duration-300">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-sans antialiased transition-colors duration-300 animate-fade-in">
       {/* Barra de progreso de scroll */}
       <div
         className="fixed top-0 left-0 h-[2px] bg-gradient-to-r from-[#c9a84c] to-[#e8c95a] z-[9999] transition-[width] duration-100"

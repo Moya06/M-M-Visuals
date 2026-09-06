@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, Outlet, useNavigate, Link } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuthContext } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import { Logo } from '../../components/Logo'
@@ -15,6 +15,7 @@ export function AdminLayout() {
   const { theme, toggleTheme } = useTheme()
   const [mobileOpen, setMobileOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
 
   const handleSignOut = async () => {
     await signOut()
@@ -150,11 +151,9 @@ export function AdminLayout() {
           <div className="pt-4 mt-4 border-t border-[var(--border-color)]/60">
             <Link
               to="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--border-color)]/20 transition-all"
+              className="flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--border-color)]/20 active:scale-95 transition-all"
             >
-              <i className="fas fa-arrow-up-right-from-square w-4 text-center text-xs" />
+              <i className="fas fa-arrow-left w-4 text-center text-xs" />
               <span>Ver portafolio web</span>
             </Link>
           </div>
@@ -168,7 +167,7 @@ export function AdminLayout() {
           </div>
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white transition-all duration-200 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white active:scale-95 transition-all duration-200 cursor-pointer"
           >
             <i className="fas fa-right-from-bracket text-xs" />
             Cerrar sesión
@@ -178,7 +177,9 @@ export function AdminLayout() {
 
       {/* ── CONTENIDO PRINCIPAL RESPONSIVO ── */}
       <main className="flex-1 min-w-0 overflow-y-auto">
-        <Outlet />
+        <div key={location.pathname} className="animate-fade-in w-full min-h-full">
+          <Outlet />
+        </div>
       </main>
     </div>
   )

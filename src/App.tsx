@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthContext } from './context/AuthContext'
 import { useAuth } from './hooks/useAuth'
 import { ProtectedRoute } from './router/ProtectedRoute'
@@ -10,27 +10,30 @@ import { PhotosPage } from './pages/admin/PhotosPage'
 import { CategoriesPage } from './pages/admin/CategoriesPage'
 
 function AppRoutes() {
+  const location = useLocation()
   return (
-    <Routes>
-      {/* ── Vista pública ──────────────────────────── */}
-      <Route path="/" element={<PublicPage />} />
+    <div key={location.pathname.startsWith('/admin') ? 'admin-zone' : 'public-zone'} className="animate-fade-in w-full min-h-screen">
+      <Routes location={location}>
+        {/* ── Vista pública ──────────────────────────── */}
+        <Route path="/" element={<PublicPage />} />
 
-      {/* ── Login (acceso público) ─────────────────── */}
-      <Route path="/admin/login" element={<LoginPage />} />
+        {/* ── Login (acceso público) ─────────────────── */}
+        <Route path="/admin/login" element={<LoginPage />} />
 
-      {/* ── Panel de admin (protegido) ─────────────── */}
-      <Route element={<ProtectedRoute />}>
-        <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="/admin/dashboard" element={<DashboardPage />} />
-          <Route path="/admin/photos" element={<PhotosPage />} />
-          <Route path="/admin/categories" element={<CategoriesPage />} />
+        {/* ── Panel de admin (protegido) ─────────────── */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="/admin/dashboard" element={<DashboardPage />} />
+            <Route path="/admin/photos" element={<PhotosPage />} />
+            <Route path="/admin/categories" element={<CategoriesPage />} />
+          </Route>
         </Route>
-      </Route>
 
-      {/* ── Catch-all ─────────────────────────────── */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* ── Catch-all ─────────────────────────────── */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
   )
 }
 

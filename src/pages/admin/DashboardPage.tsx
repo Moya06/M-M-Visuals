@@ -56,14 +56,12 @@ export function DashboardPage() {
         >
           <i className="fas fa-plus text-xs text-[var(--accent)]" /> Gestionar categorías
         </Link>
-        <a
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] rounded-xl text-xs sm:text-sm font-semibold hover:border-[var(--accent)] transition-colors"
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] rounded-xl text-xs sm:text-sm font-semibold hover:border-[var(--accent)] active:scale-95 transition-all shadow-sm"
         >
-          <i className="fas fa-arrow-up-right-from-square text-xs" /> Ver portafolio
-        </a>
+          <i className="fas fa-arrow-left text-xs text-[var(--accent)]" /> Ver portafolio web
+        </Link>
       </div>
 
       {/* Recent photos preview */}
