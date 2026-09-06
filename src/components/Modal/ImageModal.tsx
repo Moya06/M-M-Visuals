@@ -71,6 +71,20 @@ export function ImageModal({
 
   const filmstripRef = useRef<HTMLDivElement>(null)
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [isLoadedVertical, setIsLoadedVertical] = useState(false)
+  const isImageVertical = Boolean(
+    (currentImage?.height && currentImage?.width && currentImage.height > currentImage.width) ||
+    isLoadedVertical
+  )
+
+  useEffect(() => {
+    if (currentImage?.height && currentImage?.width) {
+      setIsLoadedVertical(currentImage.height > currentImage.width)
+    } else {
+      setIsLoadedVertical(false)
+    }
+  }, [currentImage?.src, currentImage?.width, currentImage?.height])
+
   const [showControls, setShowControls] = useState(true)
   const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -518,8 +532,8 @@ export function ImageModal({
           <i className="fas fa-chevron-right text-base" />
         </button>
 
-        {/* Contenedor y Foto */}
-        <div className="relative max-w-[94vw] max-h-[82vh] flex items-center justify-center">
+        {/* Contenedor y Foto (ajustado con precisión milimétrica a los bordes reales de la imagen) */}
+        <div className="relative inline-flex items-center justify-center max-w-[92vw] max-h-[78vh]">
           {/* Spinner de carga si es imagen pesada */}
           {!imageLoaded && (
             <div className="absolute inset-0 flex items-center justify-center z-0">
@@ -531,14 +545,21 @@ export function ImageModal({
             src={currentImage.src}
             alt={displayTitle}
             draggable={false}
-            onLoad={() => setImageLoaded(true)}
+            onLoad={(e) => {
+              setImageLoaded(true)
+              const imgEl = e.currentTarget
+              if (imgEl.naturalHeight && imgEl.naturalWidth) {
+                setIsLoadedVertical(imgEl.naturalHeight > imgEl.naturalWidth)
+              }
+            }}
             onDoubleClick={onToggleZoom}
-            className={`max-w-[92vw] max-h-[78vh] object-contain rounded-xl select-none transition-transform ${isDragging.current ? 'duration-0' : 'duration-200'
-              } ease-out ${imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-              } ${isLight
+            className={`block max-w-[92vw] max-h-[78vh] w-auto h-auto object-contain rounded-xl select-none transition-transform ${
+              isDragging.current ? 'duration-0' : 'duration-200'
+            } ease-out ${imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} ${
+              isLight
                 ? 'shadow-[0_20px_70px_rgba(0,0,0,0.18)]'
                 : 'shadow-[0_25px_80px_rgba(0,0,0,0.8)]'
-              } transition-opacity`}
+            } transition-opacity`}
             style={{
               transform: `scale(${scale}) translate(${pan.x}px, ${pan.y}px)`,
               cursor: scale > 1 ? (isDragging.current ? 'grabbing' : 'grab') : 'zoom-in',
@@ -549,10 +570,15 @@ export function ImageModal({
           {showInfo && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className={`absolute bottom-2 left-2 right-2 md:bottom-6 md:left-auto md:right-6 w-auto md:max-w-md max-h-[75vh] overflow-y-auto z-50 p-4 sm:p-5 shrink-0 rounded-2xl backdrop-blur-3xl shadow-[0_10px_40px_rgba(0,0,0,0.4)] animate-[fadeUp_0.2s_ease-out] ${isLight
-                ? 'bg-white/95 border border-[var(--border-color)] text-[#25201b]'
-                : 'bg-[#111111]/95 border border-white/15 text-white'
-                }`}
+              className={`absolute z-50 p-4 sm:p-5 rounded-2xl backdrop-blur-3xl shadow-[0_10px_40px_rgba(0,0,0,0.4)] animate-[fadeIn_0.2s_ease-out] overflow-y-auto max-h-[60vh] sm:max-h-[72vh] ${
+                isImageVertical
+                  ? 'bottom-[2px] left-1/2 -translate-x-1/2 w-[calc(100%-16px)] sm:w-auto max-w-[calc(100vw-24px)] sm:max-w-md'
+                  : 'bottom-[4px] right-[4px] w-[calc(100%-16px)] sm:w-auto max-w-[calc(100vw-24px)] sm:max-w-md'
+              } ${
+                isLight
+                  ? 'bg-white/95 border border-[var(--border-color)] text-[#25201b]'
+                  : 'bg-[#111111]/95 border border-white/15 text-white'
+              }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] tracking-[2px] uppercase text-[var(--accent)] font-semibold">
