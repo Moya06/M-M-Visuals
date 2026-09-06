@@ -345,27 +345,27 @@ export function PhotosPage() {
                   </button>
 
                   {/* Fila 2: Editar, Datos y Eliminar con espacio suficiente */}
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
                     {/* Botón Editar */}
                     <button
                       type="button"
                       onClick={(e) => openEditModal(photo, e)}
-                      className="flex-1 py-1.5 px-2 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      className="flex-1 min-w-0 py-1.5 px-1.5 sm:px-2 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white rounded-lg text-[11px] sm:text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
                       title="Editar título, descripción, categoría o visibilidad"
                     >
-                      <i className="fas fa-pen-to-square text-[11px]" />
-                      <span>Editar</span>
+                      <i className="fas fa-pen-to-square text-[10px] sm:text-[11px] shrink-0" />
+                      <span className="truncate">Editar</span>
                     </button>
 
                     {/* Botón Datos */}
                     <button
                       type="button"
                       onClick={() => setSelectedPhoto(photo)}
-                      className="flex-1 py-1.5 px-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--accent)] hover:text-[var(--accent)] rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      className="flex-1 min-w-0 py-1.5 px-1.5 sm:px-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--accent)] hover:text-[var(--accent)] rounded-lg text-[11px] sm:text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
                       title="Ver datos y detalles"
                     >
-                      <i className="fas fa-circle-info text-[11px] text-[var(--accent)]" />
-                      <span>Datos</span>
+                      <i className="fas fa-circle-info text-[10px] sm:text-[11px] text-[var(--accent)] shrink-0" />
+                      <span className="truncate">Datos</span>
                     </button>
 
                     {/* Botón Delete */}
@@ -373,13 +373,13 @@ export function PhotosPage() {
                       type="button"
                       onClick={() => setPhotoToDelete(photo)}
                       disabled={deletingId === photo.id}
-                      className="w-8 h-7 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+                      className="w-7 sm:w-8 h-7 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 shrink-0"
                       title="Eliminar foto"
                     >
                       {deletingId === photo.id ? (
                         <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
                       ) : (
-                        <i className="fas fa-trash text-[11px]" />
+                        <i className="fas fa-trash text-[10px] sm:text-[11px]" />
                       )}
                     </button>
                   </div>
@@ -558,11 +558,11 @@ export function PhotosPage() {
             </div>
 
             {/* Botones de acción en el Modal */}
-            <div className="pt-2 border-t border-[var(--border-color)] flex flex-wrap items-center justify-between gap-2">
+            <div className="pt-2 border-t border-[var(--border-color)] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
               <button
                 type="button"
                 onClick={() => openEditModal(selectedPhoto)}
-                className="py-2.5 px-4 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="py-2.5 px-4 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer w-full sm:w-auto"
               >
                 <i className="fas fa-pen-to-square" />
                 <span>Editar información</span>
@@ -572,7 +572,7 @@ export function PhotosPage() {
                 type="button"
                 onClick={() => setPhotoToDelete(selectedPhoto)}
                 disabled={deletingId === selectedPhoto.id}
-                className="py-2.5 px-4 bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
+                className="py-2.5 px-4 bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50 w-full sm:w-auto"
               >
                 {deletingId === selectedPhoto.id ? (
                   <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -774,19 +774,19 @@ export function PhotosPage() {
               </div>
 
               {/* Botones de acción */}
-              <div className="pt-3 border-t border-[var(--border-color)] flex items-center justify-end gap-2.5">
+              <div className="pt-3 border-t border-[var(--border-color)] flex flex-wrap items-center justify-end gap-2 sm:gap-2.5">
                 <button
                   type="button"
                   onClick={() => setPhotoToEdit(null)}
                   disabled={isSavingEdit}
-                  className="py-2 px-4 rounded-xl text-xs sm:text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-primary)] transition-colors cursor-pointer disabled:opacity-50"
+                  className="py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-primary)] transition-colors cursor-pointer disabled:opacity-50 flex-1 sm:flex-initial text-center"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingEdit}
-                  className="py-2.5 px-5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-colors cursor-pointer shadow-sm disabled:opacity-50"
+                  className="py-2.5 px-5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm disabled:opacity-50 flex-1 sm:flex-initial text-center"
                 >
                   {isSavingEdit ? (
                     <>

@@ -27,11 +27,11 @@ export function PortfolioGrid({ photos, categories, loading = false, onOpenImage
     : photos
 
   return (
-    <section className="py-[120px] scroll-mt-20" id="portfolio">
-      <div className="max-w-[1300px] mx-auto px-6">
-        <div className="text-center mb-[60px]">
+    <section className="py-[70px] sm:py-[100px] md:py-[120px] scroll-mt-20" id="portfolio">
+      <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
+        <div className="text-center mb-8 sm:mb-[60px]">
           <div className="text-[11px] tracking-[4px] uppercase text-[#c9a84c] mb-3">Galería</div>
-          <h2 className="font-serif text-[clamp(2rem,4vw,3rem)] relative inline-block after:block after:w-10 after:h-[2px] after:bg-[#c9a84c] after:mx-auto after:mt-4">
+          <h2 className="font-serif text-[clamp(1.75rem,4vw,3rem)] relative inline-block after:block after:w-10 after:h-[2px] after:bg-[#c9a84c] after:mx-auto after:mt-4">
             Mi Portafolio
           </h2>
         </div>
@@ -57,7 +57,7 @@ export function PortfolioGrid({ photos, categories, loading = false, onOpenImage
           <p className="text-center text-[#555] py-20">No hay fotos en esta categoría.</p>
         )}
 
-        <div ref={gridRef} className="columns-3 gap-6 max-sm:columns-1 max-md:columns-2">
+        <div ref={gridRef} className="columns-1 sm:columns-2 lg:columns-3 gap-4 sm:gap-6">
           {filtered.map((photo, i) => (
             <PortfolioItem
               key={photo.id}

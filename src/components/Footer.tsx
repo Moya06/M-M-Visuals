@@ -2,16 +2,16 @@ import { Logo } from './Logo'
 
 export function Footer() {
   return (
-    <footer className="py-16 pb-[30px] border-t border-[var(--border-color)] bg-[var(--bg-primary)]">
-      <div className="max-w-[1300px] mx-auto px-6">
-        <div className="flex justify-between items-start mb-[40px] gap-10 flex-wrap">
+    <footer className="py-12 sm:py-16 pb-[30px] border-t border-[var(--border-color)] bg-[var(--bg-primary)]">
+      <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start mb-[40px] gap-8 sm:gap-10 flex-wrap">
           <div className="max-w-[360px]">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-24 h-24 md:w-28 md:h-28 flex items-center justify-center shrink-0">
+            <div className="flex items-center gap-3.5 sm:gap-4 mb-4">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 flex items-center justify-center shrink-0">
                 <Logo className="w-full h-full" />
               </div>
               <div className="flex flex-col justify-center">
-                <span className="font-serif text-[24px] font-bold text-[var(--text-main)] leading-tight">
+                <span className="font-serif text-[20px] sm:text-[24px] font-bold text-[var(--text-main)] leading-tight">
                   M&M <span className="text-[var(--accent)] font-serif italic text-2xl">Visuals</span>
                 </span>
                 <span className="text-[10px] tracking-[3px] uppercase text-[var(--text-muted)] font-semibold mt-1">

@@ -32,29 +32,29 @@ export function Header() {
       <div className="max-w-[1300px] mx-auto px-6">
         <nav className="flex flex-col md:flex-row justify-between items-center flex-wrap py-2 md:py-2.5 gap-3 md:gap-0">
           {/* Logo en la esquina: grande, animado con transición suave */}
-          <a href="#inicio" className="flex items-center gap-3.5 md:gap-4 no-underline group py-1">
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 flex items-center justify-center p-0.5 transition-transform duration-300 group-hover:scale-105 shrink-0">
+          <a href="#inicio" className="flex items-center gap-2.5 sm:gap-3.5 md:gap-4 no-underline group py-1">
+            <div className="relative w-16 h-16 sm:w-22 sm:h-22 md:w-28 md:h-28 flex items-center justify-center p-0.5 transition-transform duration-300 group-hover:scale-105 shrink-0">
               {/* Aro dorado centrado geométricamente con todo el emblema y sus salientes */}
               <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-[var(--accent)] group-hover:shadow-[0_0_20px_rgba(201,168,76,0.4)] transition-all duration-300 opacity-0 group-hover:opacity-100 pointer-events-none" />
               <Logo className="w-full h-full" />
             </div>
             <div className="flex flex-col justify-center items-center md:items-start text-center md:text-left">
-              <span className="font-serif text-[26px] md:text-[32px] font-bold tracking-[1.5px] md:tracking-[2px] text-[var(--text-main)] leading-none transition-colors duration-300 group-hover:text-[var(--accent)]">
-                M&M <span className="text-[var(--accent)] font-serif italic text-[22px] md:text-[30px]">Visuals</span>
+              <span className="font-serif text-[20px] sm:text-[26px] md:text-[32px] font-bold tracking-[1.5px] md:tracking-[2px] text-[var(--text-main)] leading-none transition-colors duration-300 group-hover:text-[var(--accent)]">
+                M&M <span className="text-[var(--accent)] font-serif italic text-[18px] sm:text-[22px] md:text-[30px]">Visuals</span>
               </span>
-              <span className="text-[9.5px] md:text-[11px] tracking-[3.5px] md:tracking-[4.5px] uppercase text-[var(--text-muted)] font-semibold mt-1">
+              <span className="text-[9px] sm:text-[10px] md:text-[11px] tracking-[3px] sm:tracking-[4px] md:tracking-[4.5px] uppercase text-[var(--text-muted)] font-semibold mt-1">
                 Photography Studio
               </span>
             </div>
           </a>
 
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 mt-1 md:mt-0 w-full md:w-auto">
-            <ul className="flex list-none gap-4 md:gap-7 items-center m-0 p-0 flex-wrap justify-center w-full md:w-auto">
+          <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 md:gap-6 mt-1 md:mt-0 w-full md:w-auto">
+            <ul className="flex list-none gap-2.5 sm:gap-4 md:gap-7 items-center m-0 p-0 flex-wrap justify-center w-full md:w-auto">
               {navLinks.map((link) => (
                 <li key={link.href}>
                   <a
                     href={link.href}
-                    className={`text-[10px] md:text-xs font-semibold tracking-[1px] md:tracking-[1.5px] uppercase no-underline transition-colors duration-300 relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1.5px] after:bg-[var(--accent)] after:transition-all after:duration-300 hover:after:w-full ${active === link.href.slice(1)
+                    className={`text-[9.5px] sm:text-[11px] md:text-xs font-semibold tracking-[0.5px] sm:tracking-[1px] md:tracking-[1.5px] uppercase no-underline transition-colors duration-300 relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1.5px] after:bg-[var(--accent)] after:transition-all after:duration-300 hover:after:w-full ${active === link.href.slice(1)
                       ? 'text-[var(--text-main)] after:w-full'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
                       }`}
@@ -66,9 +66,9 @@ export function Header() {
               <li>
                 <a
                   href="/admin"
-                  className="text-[10px] md:text-[11px] font-semibold tracking-[1.5px] uppercase px-3.5 py-1.5 rounded-full border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all duration-300 flex items-center gap-1.5"
+                  className="text-[9.5px] sm:text-[10px] md:text-[11px] font-semibold tracking-[1px] sm:tracking-[1.5px] uppercase px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all duration-300 flex items-center gap-1 sm:gap-1.5"
                 >
-                  <i className="fas fa-lock text-[9px] text-[var(--accent)]" />
+                  <i className="fas fa-lock text-[8px] sm:text-[9px] text-[var(--accent)]" />
                   Admin
                 </a>
               </li>

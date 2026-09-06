@@ -272,21 +272,21 @@ export function UploadForm({ categories, onSuccess }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 space-y-5 shadow-sm">
-      <h2 className="text-lg font-serif text-[var(--text-main)] font-bold">Subir nueva foto</h2>
+    <form onSubmit={handleSubmit} className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-sm">
+      <h2 className="text-base sm:text-lg font-serif text-[var(--text-main)] font-bold">Subir nueva foto</h2>
 
       {/* Zona de archivo */}
       <div
         onClick={() => fileRef.current?.click()}
-        className="relative border-2 border-dashed border-[var(--border-color)] rounded-xl p-6 text-center cursor-pointer hover:border-[var(--accent)] transition-colors group bg-[var(--bg-primary)]/50"
+        className="relative border-2 border-dashed border-[var(--border-color)] rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-[var(--accent)] transition-colors group bg-[var(--bg-primary)]/50"
       >
         {preview ? (
           <img src={preview} alt="preview" className="max-h-48 mx-auto rounded-lg object-contain" />
         ) : (
           <div className="text-[var(--text-muted)] group-hover:text-[var(--text-main)] transition-colors">
-            <i className="fas fa-cloud-arrow-up text-3xl mb-3 block text-[var(--accent)]" />
-            <p className="text-sm font-medium">Haz clic o arrastra una foto aquí</p>
-            <p className="text-xs mt-1 opacity-70">JPG, PNG, WEBP — Calidad profesional (hasta 15 MB por foto)</p>
+            <i className="fas fa-cloud-arrow-up text-2xl sm:text-3xl mb-2 sm:mb-3 block text-[var(--accent)]" />
+            <p className="text-xs sm:text-sm font-medium">Haz clic o arrastra una foto aquí</p>
+            <p className="text-[10px] sm:text-xs mt-1 opacity-70">JPG, PNG, WEBP — Calidad profesional (hasta 15 MB por foto)</p>
           </div>
         )}
         <input
@@ -302,11 +302,11 @@ export function UploadForm({ categories, onSuccess }: Props) {
       {fileName && fileSizeMB !== null && (
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs px-3 py-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)]">
-            <span className="text-[var(--text-main)] font-medium truncate max-w-[240px]">
+            <span className="text-[var(--text-main)] font-medium truncate max-w-[150px] sm:max-w-[240px]">
               <i className="fas fa-image mr-1.5 text-[var(--accent)]" />
               {fileName}
             </span>
-            <span className="shrink-0 font-mono text-[var(--accent)] font-semibold ml-2">
+            <span className="shrink-0 font-mono text-[var(--accent)] font-semibold ml-2 text-[11px] sm:text-xs">
               {fileSizeMB.toFixed(1)} MB
             </span>
           </div>
@@ -331,8 +331,8 @@ export function UploadForm({ categories, onSuccess }: Props) {
       )}
 
       {/* Metadatos */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="col-span-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <div className="sm:col-span-2">
           <label className="block text-xs text-[var(--text-muted)] tracking-[1px] uppercase mb-1.5 font-semibold">Título</label>
           <input
             type="text"
@@ -342,17 +342,17 @@ export function UploadForm({ categories, onSuccess }: Props) {
             className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50 focus:outline-none focus:border-[var(--accent)] transition-colors"
           />
         </div>
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <label className="block text-xs text-[var(--text-muted)] tracking-[1px] uppercase mb-1.5 font-semibold">Descripción</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Descripción breve (opcional)"
-            rows={2}
+            placeholder="Descripción amplia o narrativa (opcional)"
+            rows={3}
             className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50 focus:outline-none focus:border-[var(--accent)] transition-colors resize-none"
           />
         </div>
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <label className="block text-xs text-[var(--text-muted)] tracking-[1px] uppercase mb-1.5 font-semibold">
             Categoría o Subcategoría
           </label>

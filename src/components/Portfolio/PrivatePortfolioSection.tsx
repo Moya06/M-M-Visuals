@@ -38,14 +38,14 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
 
   return (
     <section className="py-[100px] scroll-mt-20 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/35" id="privadas">
-      <div className="max-w-[1300px] mx-auto px-6">
+      <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
         {/* Encabezado del apartado exclusivo */}
-        <div className="text-center mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-500 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm">
-            <i className="fas fa-lock text-xs" />
-            <span>Apartado Exclusivo · Solo visible para ti como Administrador</span>
+        <div className="text-center mb-10 sm:mb-16">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-500 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3 shadow-sm max-w-full text-left sm:text-center">
+            <i className="fas fa-lock text-xs shrink-0" />
+            <span className="truncate sm:overflow-visible sm:whitespace-normal">Apartado Exclusivo · Solo visible para ti como Administrador</span>
           </div>
-          <h2 className="font-serif text-[clamp(2rem,3.5vw,2.8rem)] text-[var(--text-main)] font-bold relative inline-block after:block after:w-12 after:h-[2px] after:bg-amber-500 after:mx-auto after:mt-3">
+          <h2 className="font-serif text-[clamp(1.75rem,4.5vw,2.8rem)] text-[var(--text-main)] font-bold relative inline-block after:block after:w-12 after:h-[2px] after:bg-amber-500 after:mx-auto after:mt-3">
             Colección Privada & Crónicas
           </h2>
           <p className="text-xs sm:text-sm text-[var(--text-muted)] max-w-2xl mx-auto mt-4 leading-relaxed">
@@ -57,7 +57,7 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
         </div>
 
         {/* Lista de fotos en formato editorial / storytelling */}
-        <div className="space-y-10 md:space-y-12">
+        <div className="space-y-8 sm:space-y-10 md:space-y-12">
           {photos.map((photo, index) => {
             const hasLongDesc = (photo.description?.length ?? 0) > 300
             const isExpanded = expandedId === photo.id
@@ -65,11 +65,11 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
             return (
               <article
                 key={photo.id}
-                className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl overflow-hidden shadow-lg hover:border-amber-500/40 transition-all duration-300 grid grid-cols-1 lg:grid-cols-12"
+                className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:border-amber-500/40 transition-all duration-300 grid grid-cols-1 lg:grid-cols-12"
               >
                 {/* Columna de la Foto (Click para abrir visor completo) */}
                 <div
-                  className="lg:col-span-5 relative group cursor-pointer bg-black/20 flex items-center justify-center overflow-hidden min-h-[300px] sm:min-h-[400px] lg:min-h-full"
+                  className="lg:col-span-5 relative group cursor-pointer bg-black/20 flex items-center justify-center overflow-hidden min-h-[240px] sm:min-h-[380px] lg:min-h-full aspect-[4/3] sm:aspect-auto"
                   onClick={() => onOpenImage(index, photos)}
                 >
                   <img
@@ -95,12 +95,12 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
                 </div>
 
                 {/* Columna de Contenido Editorial (Diseñada para descripciones amplias) */}
-                <div className="lg:col-span-7 p-6 sm:p-8 md:p-10 flex flex-col justify-between gap-6">
+                <div className="lg:col-span-7 p-4 sm:p-7 md:p-10 flex flex-col justify-between gap-5 sm:gap-6">
                   <div className="space-y-4">
                     {/* Metadatos superiores */}
-                    <div className="flex items-center gap-2.5 flex-wrap">
+                    <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                       {photo.category && (
-                        <span className="px-3 py-1 rounded-full bg-[var(--accent)]/15 border border-[var(--accent)]/30 text-[var(--accent)] text-xs font-semibold tracking-wide">
+                        <span className="px-2.5 sm:px-3 py-1 rounded-full bg-[var(--accent)]/15 border border-[var(--accent)]/30 text-[var(--accent)] text-xs font-semibold tracking-wide">
                           {photo.category.name}
                         </span>
                       )}
@@ -121,19 +121,19 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
                     </div>
 
                     {/* Título de la obra */}
-                    <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[var(--text-main)] leading-snug">
+                    <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-bold text-[var(--text-main)] leading-snug break-words">
                       {photo.title?.trim() || 'Fotografía de la Colección Privada'}
                     </h3>
 
                     {/* Contenedor de la descripción amplia */}
-                    <div className="bg-[var(--bg-primary)]/80 border border-[var(--border-color)] rounded-2xl p-5 sm:p-6 shadow-inner">
+                    <div className="bg-[var(--bg-primary)]/80 border border-[var(--border-color)] rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-inner">
                       <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[var(--border-color)]/60 text-amber-500 text-xs font-bold uppercase tracking-wider">
                         <i className="fas fa-align-left text-[11px]" />
                         <span>Descripción & Narrativa Extendida</span>
                       </div>
 
                       <div
-                        className={`text-sm sm:text-base text-[var(--text-main)]/90 leading-relaxed font-sans whitespace-pre-line ${
+                        className={`text-sm sm:text-base text-[var(--text-main)]/90 leading-relaxed font-sans whitespace-pre-line break-words ${
                           hasLongDesc && !isExpanded ? 'line-clamp-6' : ''
                         }`}
                       >
@@ -158,20 +158,20 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
                   </div>
 
                   {/* Barra de herramientas / Acciones de la foto */}
-                  <div className="pt-4 border-t border-[var(--border-color)] flex items-center justify-between gap-3 flex-wrap">
+                  <div className="pt-4 border-t border-[var(--border-color)] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
                     <button
                       type="button"
                       onClick={() => onOpenImage(index, photos)}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] hover:border-[var(--accent)] text-[var(--text-main)] hover:text-[var(--accent)] rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                      className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] hover:border-[var(--accent)] text-[var(--text-main)] hover:text-[var(--accent)] rounded-xl text-xs font-semibold transition-colors cursor-pointer w-full sm:w-auto"
                     >
                       <i className="fas fa-expand text-xs text-[var(--accent)]" />
                       <span>Ver en pantalla completa</span>
                     </button>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-end sm:justify-start gap-2">
                       <a
                         href="/admin/photos"
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer flex-1 sm:flex-initial"
                         title="Editar esta foto en el panel"
                       >
                         <i className="fas fa-pen-to-square text-xs" />
@@ -182,7 +182,7 @@ export function PrivatePortfolioSection({ photos, onOpenImage, onDownload }: Pro
                         <button
                           type="button"
                           onClick={() => onDownload(photo)}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-500/15 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500/15 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer flex-1 sm:flex-initial"
                           title="Descargar fotografía"
                         >
                           <i className="fas fa-download text-xs" />

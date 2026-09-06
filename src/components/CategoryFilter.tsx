@@ -24,10 +24,10 @@ export function CategoryFilter({ categories, activeId, onSelect }: Props) {
   return (
     <div className="mb-12 space-y-3">
       {/* Nivel 1: Categorías Principales */}
-      <div className="flex flex-wrap justify-center gap-2.5">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-2.5">
         <button
           onClick={() => onSelect(null)}
-          className={`px-5 py-2 rounded-full text-xs tracking-[2px] uppercase font-semibold transition-all duration-300 border cursor-pointer ${
+          className={`px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs tracking-[1px] sm:tracking-[2px] uppercase font-semibold transition-all duration-300 border cursor-pointer ${
             activeId === null
               ? 'bg-[var(--accent)] border-[var(--accent)] text-white shadow-sm'
               : 'bg-transparent border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
@@ -41,7 +41,7 @@ export function CategoryFilter({ categories, activeId, onSelect }: Props) {
             <button
               key={cat.id}
               onClick={() => onSelect(cat.id)}
-              className={`px-5 py-2 rounded-full text-xs tracking-[2px] uppercase font-semibold transition-all duration-300 border cursor-pointer ${
+              className={`px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs tracking-[1px] sm:tracking-[2px] uppercase font-semibold transition-all duration-300 border cursor-pointer ${
                 isSelected
                   ? 'bg-[var(--accent)] border-[var(--accent)] text-white shadow-sm'
                   : 'bg-transparent border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
