@@ -23,6 +23,7 @@ export function UploadForm({ categories, onSuccess }: Props) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [categoryId, setCategoryId] = useState('')
+  const [isPrivate, setIsPrivate] = useState(false)
 
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -50,6 +51,7 @@ export function UploadForm({ categories, onSuccess }: Props) {
     setTitle('')
     setDescription('')
     setCategoryId('')
+    setIsPrivate(false)
     setProgress(0)
     setSteps([])
     setError(null)
@@ -200,24 +202,42 @@ export function UploadForm({ categories, onSuccess }: Props) {
       let newPhoto: Photo
 
       if (isSupabaseConfigured) {
-        const { data, error: dbErr } = await supabase
+        const insertPayload: any = {
+          title: title.trim() || null,
+          description: description.trim() || null,
+          category_id: categoryId || null,
+          storage_key: optimizedKey,
+          thumbnail_key: thumbnailKey,
+          url,
+          thumbnail_url: thumbnailUrl,
+          width,
+          height,
+          is_private: isPrivate,
+        }
+
+        let { data, error: dbErr } = await supabase
           .from('photos')
-          .insert({
-            title: title.trim() || null,
-            description: description.trim() || null,
-            category_id: categoryId || null,
-            storage_key: optimizedKey,
-            thumbnail_key: thumbnailKey,
-            url,
-            thumbnail_url: thumbnailUrl,
-            width,
-            height,
-          })
+          .insert(insertPayload)
           .select('*, category:categories(id, name, slug, created_at)')
           .single()
 
+        // Fallback por si la columna is_private aún no fue migrada en la tabla remota de Supabase
+        if (dbErr && dbErr.message && dbErr.message.includes('is_private')) {
+          delete insertPayload.is_private
+          const retry = await supabase
+            .from('photos')
+            .insert(insertPayload)
+            .select('*, category:categories(id, name, slug, created_at)')
+            .single()
+          data = retry.data
+          dbErr = retry.error
+        }
+
         if (dbErr) throw new Error(`Error guardando en DB: ${dbErr.message}`)
-        newPhoto = data as Photo
+        newPhoto = { ...(data as Photo), is_private: isPrivate }
+
+        // Sincronizar en almacén local
+        await saveLocalPhoto(newPhoto)
       } else {
         const foundCategory = categories.find((c) => c.id === categoryId) || null
         newPhoto = {
@@ -233,6 +253,7 @@ export function UploadForm({ categories, onSuccess }: Props) {
           width,
           height,
           created_at: new Date().toISOString(),
+          is_private: isPrivate,
         }
 
         await saveLocalPhoto(newPhoto)
@@ -364,6 +385,60 @@ export function UploadForm({ categories, onSuccess }: Props) {
               </optgroup>
             )}
           </select>
+        </div>
+
+        {/* Selector de visibilidad: Público o Privado */}
+        <div className="col-span-2">
+          <label className="block text-xs text-[var(--text-muted)] tracking-[1px] uppercase mb-1.5 font-semibold">
+            Visibilidad de la fotografía
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setIsPrivate(false)}
+              className={`p-3 rounded-xl border text-left flex items-start gap-3 transition-all cursor-pointer ${
+                !isPrivate
+                  ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--text-main)] ring-1 ring-[var(--accent)]/30 shadow-sm'
+                  : 'border-[var(--border-color)] bg-[var(--bg-primary)] opacity-65 hover:opacity-100'
+              }`}
+            >
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${!isPrivate ? 'bg-[var(--accent)] text-white' : 'bg-black/10 text-[var(--text-muted)]'}`}>
+                <i className="fas fa-globe text-sm" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold">Pública</span>
+                  <span className="text-[9px] px-1.5 py-0.5 bg-emerald-500/15 text-emerald-500 rounded font-semibold">Visible para todos</span>
+                </div>
+                <p className="text-[11px] text-[var(--text-muted)] mt-0.5 leading-snug">
+                  Cualquier persona que entre al link del portafolio podrá verla.
+                </p>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsPrivate(true)}
+              className={`p-3 rounded-xl border text-left flex items-start gap-3 transition-all cursor-pointer ${
+                isPrivate
+                  ? 'border-amber-500 bg-amber-500/10 text-[var(--text-main)] ring-1 ring-amber-500/30 shadow-sm'
+                  : 'border-[var(--border-color)] bg-[var(--bg-primary)] opacity-65 hover:opacity-100'
+              }`}
+            >
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isPrivate ? 'bg-amber-500 text-white' : 'bg-black/10 text-[var(--text-muted)]'}`}>
+                <i className="fas fa-lock text-sm" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold">Privada</span>
+                  <span className="text-[9px] px-1.5 py-0.5 bg-amber-500/15 text-amber-500 rounded font-semibold">Solo Admin</span>
+                </div>
+                <p className="text-[11px] text-[var(--text-muted)] mt-0.5 leading-snug">
+                  Solo tú la verás cuando tengas tu sesión iniciada de admin.
+                </p>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
 

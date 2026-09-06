@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { Photo } from '../types'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
-import { getLocalPhotos, deleteLocalPhoto as removeLocalPhoto } from '../lib/localPhotoStore'
+import { getLocalPhotos, deleteLocalPhoto as removeLocalPhoto, updateLocalPhoto } from '../lib/localPhotoStore'
 
 export function usePhotos(categoryId?: string | null) {
   const [photos, setPhotos] = useState<Photo[]>([])
@@ -45,11 +45,22 @@ export function usePhotos(categoryId?: string | null) {
         const { data, error: sbError } = await Promise.race([targetQuery, timeoutPromise])
 
         if (!cancelled) {
+          const localList = await getLocalPhotos()
+          const localMap = new Map(localList.map((p) => [p.id, p]))
+
           if (!sbError && data && Array.isArray(data)) {
-            setPhotos(data as Photo[])
+            // Combinar con metadatos locales (como is_private) por si Supabase aún no tiene la columna
+            const mergedList = (data as Photo[]).map((p) => {
+              const loc = localMap.get(p.id)
+              return {
+                ...p,
+                is_private: p.is_private !== undefined && p.is_private !== null ? p.is_private : (loc?.is_private ?? false),
+              }
+            })
+            setPhotos(mergedList)
           } else {
             // Cargar fotos locales subidas
-            let list = await getLocalPhotos()
+            let list = localList
             if (categoryId) list = list.filter((p) => p.category_id === categoryId)
             setPhotos(list)
           }
@@ -85,9 +96,58 @@ export function usePhotos(categoryId?: string | null) {
     const { error } = await supabase.from('photos').delete().eq('id', photo.id)
     if (!error) {
       setPhotos((prev) => prev.filter((p) => p.id !== photo.id))
+      await removeLocalPhoto(photo.id)
     }
     return { error }
   }
 
-  return { photos, loading, error, setPhotos, deletePhoto }
+  const updatePhoto = async (id: string, updates: Partial<Photo>) => {
+    // 1. Actualización optimista del estado local
+    setPhotos((prev) =>
+      prev.map((p) => {
+        if (p.id === id) {
+          return { ...p, ...updates }
+        }
+        return p
+      })
+    )
+
+    // 2. Persistir en almacenamiento local
+    await updateLocalPhoto(id, updates)
+
+    // 3. Persistir en Supabase si está activo
+    if (isSupabaseConfigured) {
+      try {
+        const payload: Record<string, any> = {}
+        if (updates.title !== undefined) payload.title = updates.title
+        if (updates.description !== undefined) payload.description = updates.description
+        if (updates.category_id !== undefined) payload.category_id = updates.category_id
+        if (updates.is_private !== undefined) payload.is_private = updates.is_private
+
+        let { error: updateErr } = await supabase.from('photos').update(payload).eq('id', id)
+
+        // Si falla por columna is_private inexistente en Supabase, reintentar sin esa columna
+        if (updateErr && updateErr.message && updateErr.message.includes('is_private')) {
+          const fallbackPayload = { ...payload }
+          delete fallbackPayload.is_private
+          if (Object.keys(fallbackPayload).length > 0) {
+            const retry = await supabase.from('photos').update(fallbackPayload).eq('id', id)
+            updateErr = retry.error
+          } else {
+            updateErr = null
+          }
+        }
+
+        if (updateErr) {
+          return { error: updateErr }
+        }
+      } catch (err) {
+        return { error: err }
+      }
+    }
+
+    return { error: null }
+  }
+
+  return { photos, loading, error, setPhotos, deletePhoto, updatePhoto }
 }

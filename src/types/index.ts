@@ -7,6 +7,7 @@ export interface ImageData {
   width?: number | null
   height?: number | null
   date?: string | null
+  is_private?: boolean | null
 }
 
 // ── Tipos de Supabase ─────────────────────────────────────────────────────────
@@ -31,6 +32,7 @@ export interface Photo {
   width: number | null
   height: number | null
   created_at: string
+  is_private?: boolean | null
 }
 
 // ── Formulario de subida ──────────────────────────────────────────────────────
@@ -39,4 +41,5 @@ export interface UploadFormValues {
   title: string
   description: string
   category_id: string
+  is_private?: boolean
 }

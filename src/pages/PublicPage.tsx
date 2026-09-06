@@ -1,3 +1,4 @@
+import { useAuthContext } from '../context/AuthContext'
 import { useImageModal } from '../hooks/useImageModal'
 import { useProgressBar } from '../hooks/useProgressBar'
 import { usePhotos } from '../hooks/usePhotos'
@@ -13,8 +14,14 @@ import type { ImageData, Photo } from '../types'
 
 export function PublicPage() {
   const progress = useProgressBar()
-  const { photos, loading: photosLoading } = usePhotos()
+  const { session, user } = useAuthContext()
+  const isAdmin = Boolean(session || user)
+  const { photos: allPhotos, loading: photosLoading } = usePhotos()
   const { categories } = useCategories()
+
+  // Privado solo lo ve quien tenga la sesión de admin activa.
+  // Público lo ve cualquier persona que entre al link.
+  const photos = isAdmin ? allPhotos : allPhotos.filter((p) => !p.is_private)
 
   // Adaptar foto a ImageData para el visor con todos sus metadatos
   const mapPhotoToImageData = (p: Photo): ImageData => ({
@@ -26,6 +33,7 @@ export function PublicPage() {
     width: p.width,
     height: p.height,
     date: p.created_at,
+    is_private: p.is_private,
   })
 
   const initialImages: ImageData[] = photos.map(mapPhotoToImageData)

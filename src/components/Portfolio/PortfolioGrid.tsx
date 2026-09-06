@@ -61,7 +61,11 @@ export function PortfolioGrid({ photos, categories, loading = false, onOpenImage
           {filtered.map((photo, i) => (
             <PortfolioItem
               key={photo.id}
-              image={{ src: photo.thumbnail_url ?? photo.url }}
+              image={{
+                src: photo.thumbnail_url ?? photo.url,
+                title: photo.title,
+                is_private: photo.is_private,
+              }}
               index={i}
               onOpen={() => onOpenImage(i, filtered)}
             />

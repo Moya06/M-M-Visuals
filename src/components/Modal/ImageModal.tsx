@@ -330,6 +330,11 @@ export function ImageModal({
                   {displayCategory}
                 </span>
               )}
+              {currentImage.is_private && (
+                <span className="shrink-0 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-500 text-[9px] md:text-[10px] font-bold tracking-[1px] uppercase flex items-center gap-1">
+                  <i className="fas fa-lock text-[8px]" /> Privada
+                </span>
+              )}
             </div>
             <span className={`text-[9px] md:text-[11px] tracking-[1.5px] md:tracking-[2px] uppercase mt-1 md:mt-0.5 ${isLight ? 'text-[#746b62]' : 'text-white/50'
               }`}>
@@ -567,6 +572,12 @@ export function ImageModal({
                 {currentImage.description?.trim() || 'Fotografía profesional en alta resolución de M&M Visuals.'}
               </p>
               <div className={`text-[10px] md:text-[11px] flex flex-col gap-1.5 border-t pt-2.5 ${isLight ? 'text-[#746b62] border-black/10' : 'text-white/50 border-white/10'}`}>
+                {currentImage.is_private && (
+                  <div className="flex items-center gap-1.5 text-amber-500 font-semibold bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg w-fit">
+                    <i className="fas fa-lock text-[10px]" />
+                    <span>Fotografía Privada (visible solo para admin)</span>
+                  </div>
+                )}
                 {currentImage.categoryName && (
                   <div className="flex items-center gap-1.5">
                     <i className="fas fa-tag text-[var(--accent)] text-[10px]" />

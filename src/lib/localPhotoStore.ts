@@ -121,3 +121,50 @@ export async function deleteLocalPhoto(id: string): Promise<void> {
     }
   }
 }
+
+export async function updateLocalPhoto(id: string, updates: Partial<Photo>): Promise<Photo | null> {
+  try {
+    const db = await openDB()
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite')
+      const store = tx.objectStore(STORE_NAME)
+      const getReq = store.get(id)
+      getReq.onsuccess = () => {
+        const existing = getReq.result as Photo | undefined
+        if (!existing) {
+          const localUpdated = updateInLocalStorage(id, updates)
+          resolve(localUpdated)
+          return
+        }
+        const updatedPhoto: Photo = { ...existing, ...updates }
+        const putReq = store.put(updatedPhoto)
+        putReq.onsuccess = () => {
+          updateInLocalStorage(id, updates)
+          resolve(updatedPhoto)
+        }
+        putReq.onerror = () => reject(putReq.error)
+      }
+      getReq.onerror = () => {
+        resolve(updateInLocalStorage(id, updates))
+      }
+    })
+  } catch {
+    return updateInLocalStorage(id, updates)
+  }
+}
+
+function updateInLocalStorage(id: string, updates: Partial<Photo>): Photo | null {
+  const saved = localStorage.getItem(LOCAL_STORAGE_KEY)
+  if (!saved) return null
+  try {
+    const list: Photo[] = JSON.parse(saved)
+    const index = list.findIndex((p) => p.id === id)
+    if (index === -1) return null
+    const updated = { ...list[index], ...updates }
+    list[index] = updated
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(list))
+    return updated
+  } catch {
+    return null
+  }
+}

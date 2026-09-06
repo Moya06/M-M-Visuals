@@ -49,6 +49,12 @@ export function PortfolioItem({ image, index, onOpen }: Props) {
           e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="%23222" width="400" height="300"/><text x="50%" y="50%" fill="%23555" text-anchor="middle" dy=".3em" font-family="sans-serif">Sin imagen</text></svg>'
         }}
       />
+      {image.is_private && (
+        <div className="absolute top-2.5 right-2.5 z-10 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-md border border-amber-500/40 text-amber-400 text-[10px] font-semibold flex items-center gap-1 shadow-md">
+          <i className="fas fa-lock text-[9px]" />
+          <span>Privada</span>
+        </div>
+      )}
       <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
         <i className="fas fa-eye text-white text-2xl" />
       </div>

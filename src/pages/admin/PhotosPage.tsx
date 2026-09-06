@@ -8,15 +8,62 @@ import { ToastNotification } from '../../components/ui/ToastNotification'
 import type { Photo } from '../../types'
 
 export function PhotosPage() {
-  const { photos, loading, deletePhoto, setPhotos } = usePhotos()
+  const { photos, loading, deletePhoto, updatePhoto, setPhotos } = usePhotos()
   const { categories } = useCategories()
   const [showForm, setShowForm] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null)
+  const [photoToEdit, setPhotoToEdit] = useState<Photo | null>(null)
+  const [isSavingEdit, setIsSavingEdit] = useState(false)
+  const [editTitle, setEditTitle] = useState('')
+  const [editDescription, setEditDescription] = useState('')
+  const [editCategoryId, setEditCategoryId] = useState('')
+  const [editIsPrivate, setEditIsPrivate] = useState(false)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [downloadModalPhoto, setDownloadModalPhoto] = useState<Photo | null>(null)
   const [photoToDelete, setPhotoToDelete] = useState<Photo | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' | 'loading' } | null>(null)
+
+  const openEditModal = (photo: Photo, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
+    setPhotoToEdit(photo)
+    setEditTitle(photo.title || '')
+    setEditDescription(photo.description || '')
+    setEditCategoryId(photo.category_id || '')
+    setEditIsPrivate(Boolean(photo.is_private))
+  }
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!photoToEdit) return
+    setIsSavingEdit(true)
+
+    const categoryObj = categories.find((c) => c.id === editCategoryId) || null
+    const updates = {
+      title: editTitle.trim() || null,
+      description: editDescription.trim() || null,
+      category_id: editCategoryId || null,
+      category: categoryObj,
+      is_private: editIsPrivate,
+    }
+
+    const { error } = await updatePhoto(photoToEdit.id, updates)
+    setIsSavingEdit(false)
+
+    if (error) {
+      setToast({
+        message: `Error al actualizar: ${(error as { message?: string })?.message ?? 'desconocido'}`,
+        type: 'error',
+      })
+    } else {
+      setToast({ message: '¡Fotografía actualizada con éxito!', type: 'success' })
+      if (selectedPhoto?.id === photoToEdit.id) {
+        setSelectedPhoto((prev) => (prev ? { ...prev, ...updates } : null))
+      }
+      setPhotoToEdit(null)
+    }
+    setTimeout(() => setToast(null), 3500)
+  }
 
   const handleSuccess = (photo: Photo) => {
     setPhotos((prev) => [photo, ...prev])
@@ -174,8 +221,19 @@ export function PhotosPage() {
 
                 {/* Insignia de categoría flotante */}
                 {photo.category && (
-                  <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-[var(--accent)] text-[10px] font-semibold tracking-wide truncate max-w-[85%]">
+                  <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-[var(--accent)] text-[10px] font-semibold tracking-wide truncate max-w-[80%]">
                     {photo.category.name}
+                  </span>
+                )}
+
+                {/* Insignia de visibilidad flotante (Pública / Privada) */}
+                {photo.is_private ? (
+                  <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-amber-500/90 backdrop-blur-md text-black font-bold text-[10px] tracking-wide flex items-center gap-1 shadow-md">
+                    <i className="fas fa-lock text-[9px]" /> Privada
+                  </span>
+                ) : (
+                  <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-emerald-400 font-semibold text-[10px] tracking-wide flex items-center gap-1">
+                    <i className="fas fa-globe text-[9px]" /> Pública
                   </span>
                 )}
               </div>
@@ -217,11 +275,22 @@ export function PhotosPage() {
                     <span>Descargar</span>
                   </button>
 
+                  {/* Botón Editar */}
+                  <button
+                    type="button"
+                    onClick={(e) => openEditModal(photo, e)}
+                    className="py-1.5 px-2 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                    title="Editar título, descripción, categoría o visibilidad"
+                  >
+                    <i className="fas fa-pen-to-square text-[11px]" />
+                    <span>Editar</span>
+                  </button>
+
                   {/* Botón Datos */}
                   <button
                     type="button"
                     onClick={() => setSelectedPhoto(photo)}
-                    className="py-1.5 px-2.5 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--accent)] hover:text-[var(--accent)] rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                    className="py-1.5 px-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--accent)] hover:text-[var(--accent)] rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
                     title="Ver datos y detalles"
                   >
                     <i className="fas fa-circle-info text-[11px] text-[var(--accent)]" />
@@ -233,7 +302,7 @@ export function PhotosPage() {
                     type="button"
                     onClick={() => setPhotoToDelete(photo)}
                     disabled={deletingId === photo.id}
-                    className="py-1.5 px-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50"
+                    className="py-1.5 px-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50"
                     title="Eliminar foto"
                   >
                     {deletingId === photo.id ? (
@@ -295,13 +364,29 @@ export function PhotosPage() {
                 </p>
               </div>
 
-              <div>
-                <span className="block text-[10px] uppercase tracking-[1px] text-[var(--text-muted)] font-semibold mb-0.5">
-                  Categoría
-                </span>
-                <span className="inline-block px-2.5 py-1 rounded-full bg-[var(--accent)]/15 border border-[var(--accent)]/30 text-[var(--accent)] text-xs font-semibold">
-                  {selectedPhoto.category ? selectedPhoto.category.name : 'Sin categoría (General)'}
-                </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <span className="block text-[10px] uppercase tracking-[1px] text-[var(--text-muted)] font-semibold mb-0.5">
+                    Categoría
+                  </span>
+                  <span className="inline-block px-2.5 py-1 rounded-full bg-[var(--accent)]/15 border border-[var(--accent)]/30 text-[var(--accent)] text-xs font-semibold">
+                    {selectedPhoto.category ? selectedPhoto.category.name : 'Sin categoría (General)'}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-[10px] uppercase tracking-[1px] text-[var(--text-muted)] font-semibold mb-0.5">
+                    Visibilidad
+                  </span>
+                  {selectedPhoto.is_private ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-500 text-xs font-bold">
+                      <i className="fas fa-lock text-[10px]" /> Privada (Solo Admin)
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 text-xs font-semibold">
+                      <i className="fas fa-globe text-[10px]" /> Pública (Todo el mundo)
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -398,13 +483,22 @@ export function PhotosPage() {
               </div>
             </div>
 
-            {/* Botón Eliminar en el Modal */}
-            <div className="pt-2 border-t border-[var(--border-color)] flex justify-end">
+            {/* Botones de acción en el Modal */}
+            <div className="pt-2 border-t border-[var(--border-color)] flex flex-wrap items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => openEditModal(selectedPhoto)}
+                className="py-2.5 px-4 bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <i className="fas fa-pen-to-square" />
+                <span>Editar información</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => setPhotoToDelete(selectedPhoto)}
                 disabled={deletingId === selectedPhoto.id}
-                className="w-full sm:w-auto py-2.5 px-4 bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="py-2.5 px-4 bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
               >
                 {deletingId === selectedPhoto.id ? (
                   <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -416,6 +510,224 @@ export function PhotosPage() {
                 )}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL FLOTANTE DE EDICIÓN (TÍTULO, DESCRIPCIÓN, CATEGORÍA, PRIVACIDAD) ── */}
+      {photoToEdit && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]"
+          onClick={() => {
+            if (!isSavingEdit) setPhotoToEdit(null)
+          }}
+        >
+          <div
+            className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 shadow-2xl space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header del Modal */}
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-color)]">
+              <div className="flex items-center gap-2">
+                <i className="fas fa-pen-to-square text-[var(--accent)] text-base" />
+                <h3 className="font-serif font-bold text-base text-[var(--text-main)]">
+                  Editar Fotografía
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPhotoToEdit(null)}
+                disabled={isSavingEdit}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-primary)] transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <i className="fas fa-xmark text-sm" />
+              </button>
+            </div>
+
+            {/* Previsualización */}
+            <div className="flex items-center gap-3.5 p-3 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)]">
+              <div className="w-16 h-16 rounded-lg overflow-hidden bg-black/20 shrink-0 border border-[var(--border-color)]">
+                <img
+                  src={photoToEdit.thumbnail_url ?? photoToEdit.url}
+                  alt={photoToEdit.title ?? ''}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="text-[10px] uppercase tracking-[1px] text-[var(--text-muted)] font-semibold block">
+                  Foto seleccionada
+                </span>
+                <p className="text-xs sm:text-sm font-semibold text-[var(--text-main)] truncate">
+                  {photoToEdit.title?.trim() || 'Sin título'}
+                </p>
+                <span className="text-[11px] text-[var(--text-muted)] block mt-0.5">
+                  {photoToEdit.width && photoToEdit.height ? `${photoToEdit.width} × ${photoToEdit.height} px` : 'Resolución original'}
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-4">
+              {/* Título */}
+              <div>
+                <label className="block text-xs text-[var(--text-muted)] tracking-[1px] uppercase mb-1.5 font-semibold">
+                  Título
+                </label>
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  placeholder="Título de la foto (opcional)"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50 focus:outline-none focus:border-[var(--accent)] transition-colors"
+                />
+              </div>
+
+              {/* Descripción */}
+              <div>
+                <label className="block text-xs text-[var(--text-muted)] tracking-[1px] uppercase mb-1.5 font-semibold">
+                  Descripción
+                </label>
+                <textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="Descripción de la foto (opcional)"
+                  rows={3}
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50 focus:outline-none focus:border-[var(--accent)] transition-colors resize-none"
+                />
+              </div>
+
+              {/* Categoría */}
+              <div>
+                <label className="block text-xs text-[var(--text-muted)] tracking-[1px] uppercase mb-1.5 font-semibold">
+                  Categoría o Subcategoría
+                </label>
+                <select
+                  value={editCategoryId}
+                  onChange={(e) => setEditCategoryId(e.target.value)}
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--accent)] transition-colors cursor-pointer"
+                >
+                  <option value="">Sin categoría (General)</option>
+                  {categories.filter((c) => !c.parent_id).map((parent) => {
+                    const children = categories.filter((c) => c.parent_id === parent.id)
+                    return (
+                      <optgroup key={parent.id} label={`📁 ${parent.name}`}>
+                        <option value={parent.id}>{parent.name} (General)</option>
+                        {children.map((sub) => (
+                          <option key={sub.id} value={sub.id}>
+                            &nbsp;&nbsp;↳ {sub.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )
+                  })}
+                  {categories.filter((c) => c.parent_id && !categories.some((p) => p.id === c.parent_id)).length > 0 && (
+                    <optgroup label="Otras subcategorías">
+                      {categories.filter((c) => c.parent_id && !categories.some((p) => p.id === c.parent_id)).map((sub) => (
+                        <option key={sub.id} value={sub.id}>
+                          ↳ {sub.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                </select>
+              </div>
+
+              {/* Visibilidad: Pública vs Privada */}
+              <div>
+                <label className="block text-xs text-[var(--text-muted)] tracking-[1px] uppercase mb-1.5 font-semibold">
+                  Visibilidad de la fotografía
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Opción Pública */}
+                  <button
+                    type="button"
+                    onClick={() => setEditIsPrivate(false)}
+                    className={`p-3 rounded-xl border text-left flex items-start gap-3 transition-all cursor-pointer ${
+                      !editIsPrivate
+                        ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--text-main)] ring-1 ring-[var(--accent)]/30 shadow-sm'
+                        : 'border-[var(--border-color)] bg-[var(--bg-primary)] opacity-65 hover:opacity-100'
+                    }`}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                        !editIsPrivate ? 'bg-[var(--accent)] text-white' : 'bg-black/10 text-[var(--text-muted)]'
+                      }`}
+                    >
+                      <i className="fas fa-globe text-sm" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold">Pública</span>
+                        <span className="text-[9px] px-1.5 py-0.5 bg-emerald-500/15 text-emerald-500 rounded font-semibold">
+                          Visible para todos
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[var(--text-muted)] mt-0.5 leading-snug">
+                        Cualquier persona que entre al link del portafolio podrá verla.
+                      </p>
+                    </div>
+                  </button>
+
+                  {/* Opción Privada */}
+                  <button
+                    type="button"
+                    onClick={() => setEditIsPrivate(true)}
+                    className={`p-3 rounded-xl border text-left flex items-start gap-3 transition-all cursor-pointer ${
+                      editIsPrivate
+                        ? 'border-amber-500 bg-amber-500/10 text-[var(--text-main)] ring-1 ring-amber-500/30 shadow-sm'
+                        : 'border-[var(--border-color)] bg-[var(--bg-primary)] opacity-65 hover:opacity-100'
+                    }`}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                        editIsPrivate ? 'bg-amber-500 text-white' : 'bg-black/10 text-[var(--text-muted)]'
+                      }`}
+                    >
+                      <i className="fas fa-lock text-sm" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold">Privada</span>
+                        <span className="text-[9px] px-1.5 py-0.5 bg-amber-500/15 text-amber-500 rounded font-semibold">
+                          Solo Admin
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[var(--text-muted)] mt-0.5 leading-snug">
+                        Solo tú podrás verla cuando tengas tu sesión iniciada de admin.
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Botones de acción */}
+              <div className="pt-3 border-t border-[var(--border-color)] flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setPhotoToEdit(null)}
+                  disabled={isSavingEdit}
+                  className="py-2 px-4 rounded-xl text-xs sm:text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-primary)] transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingEdit}
+                  className="py-2.5 px-5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-colors cursor-pointer shadow-sm disabled:opacity-50"
+                >
+                  {isSavingEdit ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Guardando…</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-check" />
+                      <span>Guardar cambios</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
