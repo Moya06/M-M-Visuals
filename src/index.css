@@ -170,6 +170,17 @@ body { margin: 0; }
   }
 }
 
+@keyframes pageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-fade-up {
   animation: fadeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -180,6 +191,10 @@ body { margin: 0; }
 
 .animate-scale-in {
   animation: scaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-page-enter {
+  animation: pageEnter 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Micro-interacciones suaves en botones y enlaces */

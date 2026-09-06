@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { NavLink, Outlet, useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuthContext } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
@@ -16,6 +16,11 @@ export function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const mainRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [location.pathname])
 
   const handleSignOut = async () => {
     await signOut()
@@ -136,10 +141,10 @@ export function AdminLayout() {
               to={item.to}
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 active:scale-95 ${
                   isActive
-                    ? 'bg-[var(--accent)] text-white shadow-sm shadow-[var(--accent)]/30'
-                    : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border-color)]/30'
+                    ? 'bg-[var(--accent)] text-white shadow-md shadow-[var(--accent)]/30 scale-[1.02]'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border-color)]/30 hover:translate-x-1'
                 }`
               }
             >
@@ -151,7 +156,7 @@ export function AdminLayout() {
           <div className="pt-4 mt-4 border-t border-[var(--border-color)]/60">
             <Link
               to="/"
-              className="flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--border-color)]/20 active:scale-95 transition-all"
+              className="flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--border-color)]/20 active:scale-95 hover:translate-x-1 transition-all"
             >
               <i className="fas fa-arrow-left w-4 text-center text-xs" />
               <span>Ver portafolio web</span>
@@ -175,9 +180,9 @@ export function AdminLayout() {
         </div>
       </aside>
 
-      {/* ── CONTENIDO PRINCIPAL RESPONSIVO ── */}
-      <main className="flex-1 min-w-0 overflow-y-auto">
-        <div key={location.pathname} className="animate-fade-in w-full min-h-full">
+      {/* ── CONTENIDO PRINCIPAL RESPONSIVO CON ANIMACIÓN DE PÁGINA ── */}
+      <main ref={mainRef} className="flex-1 min-w-0 overflow-y-auto">
+        <div key={location.pathname} className="animate-page-enter w-full min-h-full">
           <Outlet />
         </div>
       </main>
