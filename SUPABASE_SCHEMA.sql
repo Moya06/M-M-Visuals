@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS public.photos (
     thumbnail_url text,
     width integer,
     height integer,
+    is_private boolean DEFAULT false,
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
